@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\Api">
+      <UniqueIdentifier>{fdee197c-24e9-4e5d-bbae-1e7f0018bc36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Domain">
+      <UniqueIdentifier>{5f1bdf77-e480-451c-a990-165917428b73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Api">
+      <UniqueIdentifier>{c580fa66-8451-496a-adf4-f7656f52f6b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Domain">
+      <UniqueIdentifier>{f56d08e2-d1ce-4c89-8310-c8e3b4feecc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Ui">
+      <UniqueIdentifier>{359b8377-9935-4c8f-8ced-254221d7c66a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Ui">
+      <UniqueIdentifier>{f0ce8735-75ff-4172-955f-a41aad11276f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Util">
+      <UniqueIdentifier>{d390215b-d4be-455b-9ee2-3a12e0cd9b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Util">
+      <UniqueIdentifier>{3cb720b0-89fb-4c72-9cf1-96bbdc817455}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Define.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleField.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>ソース ファイル\Domain</Filter>
+    </ClCompile>
+    <ClCompile Include="Cell.cpp">
+      <Filter>ソース ファイル\Domain</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleFieldDrawer.cpp">
+      <Filter>ソース ファイル\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>ソース ファイル\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Control.cpp">
+      <Filter>ソース ファイル\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Dice.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Define.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleField.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>ヘッダー ファイル\Domain</Filter>
+    </ClInclude>
+    <ClInclude Include="Cell.h">
+      <Filter>ヘッダー ファイル\Domain</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleFieldDrawer.h">
+      <Filter>ヘッダー ファイル\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>ヘッダー ファイル\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>ヘッダー ファイル\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Dice.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
