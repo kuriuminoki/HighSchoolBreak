@@ -13,18 +13,18 @@ using namespace std;
 
 
 /*
-* ƒLƒƒƒ‰‚Ì‰æ‘œ
+* ã‚­ãƒ£ãƒ©ã®ç”»åƒ
 */
 CharacterGraphs::CharacterGraphs() {
 	string commonPath = "picture/icon/";
 	for (int i = 0; i < 5; i++) {
 		m_characterIconGraphs.push_back(-1);
 	}
-	m_characterIconGraphs[0] = LoadGraph((commonPath + "ƒAƒJƒcƒL.png").c_str());
-	m_characterIconGraphs[1] = LoadGraph((commonPath + "ƒgƒEƒm.png").c_str());
-	m_characterIconGraphs[2] = LoadGraph((commonPath + "ƒ^ƒLƒm.png").c_str());
-	m_characterIconGraphs[3] = LoadGraph((commonPath + "ƒJƒCƒoƒ‰.png").c_str());
-	m_characterIconGraphs[4] = LoadGraph((commonPath + "ƒJƒ“ƒGƒC.png").c_str());
+	m_characterIconGraphs[0] = LoadGraph((commonPath + "ã‚¢ã‚«ãƒ„ã‚­.png").c_str());
+	m_characterIconGraphs[1] = LoadGraph((commonPath + "ãƒˆã‚¦ãƒ.png").c_str());
+	m_characterIconGraphs[2] = LoadGraph((commonPath + "ã‚¿ã‚­ãƒ.png").c_str());
+	m_characterIconGraphs[3] = LoadGraph((commonPath + "ã‚«ã‚¤ãƒãƒ©.png").c_str());
+	m_characterIconGraphs[4] = LoadGraph((commonPath + "ã‚«ãƒ³ã‚¨ã‚¤.png").c_str());
 }
 
 
@@ -39,7 +39,7 @@ int CharacterGraphs::getCharacterIconGraphs(CHARACTER_NUM characterNum) const {
 
 
 /*
-* BattleField‚ÌDrawer
+* BattleFieldã®Drawer
 */
 BattleFieldDrawer::BattleFieldDrawer(BattleField* battleField_p) {
 	m_battleField_p = battleField_p;
@@ -69,20 +69,20 @@ void BattleFieldDrawer::draw() {
 
 	vector<const Character*> dispCharacter;
 
-	// Šeƒ}ƒX‚Ì•`‰æ
+	// å„ãƒã‚¹ã®æç”»
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
 	for (unsigned int y = 0; y < cells.size(); y++) {
 		for (unsigned int x = 0; x < cells[y].size(); x++) {
-			// ƒ}ƒX‚Ì•`‰æ
+			// ãƒã‚¹ã®æç”»
 			cells[y][x]->draw(m_handX, m_handY, true);
-			// ƒ}ƒXã‚É‚¢‚éƒLƒƒƒ‰
+			// ãƒã‚¹ä¸Šã«ã„ã‚‹ã‚­ãƒ£ãƒ©
 			if (cells[y][x]->getCharacter() != nullptr) {
 				dispCharacter.push_back(cells[y][x]->getCharacter());
 			}
 		}
 	}
 
-	// ŠeƒLƒƒƒ‰‚Ì•`‰æ
+	// å„ã‚­ãƒ£ãƒ©ã®æç”»
 	for (unsigned int i = 0; i < dispCharacter.size(); i++) {
 		int handle = m_characterGraphs->getCharacterIconGraphs(dispCharacter[i]->getCharacterProfile()->getCharacterIconGraphNum());
 		int x = dispCharacter[i]->getDispX();
@@ -97,15 +97,15 @@ void BattleFieldDrawer::draw() {
 		SetDrawBright(255, 255, 255);
 	}
 
-	// ƒLƒƒƒ‰î•ñ‚Ì•`‰æ
+	// ã‚­ãƒ£ãƒ©æƒ…å ±ã®æç”»
 	const vector<CharacterInfoButton*> characterInfoButton = m_battleField_p->getCharacterInfoButton();
 	for (unsigned int i = 0; i < characterInfoButton.size(); i++) {
 		characterInfoButton[i]->draw(m_handX, m_handY, false, m_characterGraphs, m_smallFont);
 	}
 
-	// ƒTƒCƒRƒ‚Ì•`‰æ
+	// ã‚µã‚¤ã‚³ãƒ­ã®æç”»
 	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);
 
-	// ƒ{ƒ^ƒ“‚Ì•`‰æ
+	// ãƒœã‚¿ãƒ³ã®æç”»
 	m_battleField_p->getEndActionButton()->draw(m_handX, m_handY, true, m_middleFont, BLACK);
 }
