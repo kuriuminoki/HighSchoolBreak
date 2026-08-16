@@ -45,6 +45,9 @@ void Button::draw(int handX, int handY, bool fill) const {
 }
 
 
+/*
+* テキスト付きのボタン
+*/
 TextButton::TextButton(string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) :
 	Button(x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
 {
@@ -55,7 +58,7 @@ void TextButton::draw(int handX, int handY, bool fill, int font, int textColor) 
 	Button::draw(handX, handY, fill);
 	int fontSize = 0;
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * (m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
+	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * ((int)m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
 }
 
 

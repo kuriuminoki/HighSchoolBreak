@@ -66,6 +66,12 @@
     <ClCompile Include="Dice.cpp">
       <Filter>ソース ファイル\Api</Filter>
     </ClCompile>
+    <ClCompile Include="CharacterController.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
+    <ClCompile Include="Brain.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -90,6 +96,12 @@
       <Filter>ヘッダー ファイル\Util</Filter>
     </ClInclude>
     <ClInclude Include="Dice.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+    <ClInclude Include="Brain.h">
       <Filter>ヘッダー ファイル\Api</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,43 +10,8 @@ class Cell;
 class Character;
 class CharacterInfoButton;
 class Dice;
+class CharacterController;
 class TextButton;
-
-
-enum DIRECTION {
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN
-};
-
-
-// キャラの移動 (warp=trueなら瞬間移動)
-bool move(Character* character_p, int gy, int gx, std::vector<std::vector<Cell*> >& cells, bool warp);
-
-
-class CharacterController {
-private:
-	Dice* m_dice_p; // サイコロ
-	Character* m_character_p; // 操作キャラ
-
-	std::vector<std::vector<DIRECTION> > m_routeMemo; // 各マスへ移動する際、どの方向に移動した結果到着するか
-	std::vector<std::pair<int, int> > m_track; // キャラの移動予定マス 先頭がゴール地点、末尾がスタート地点
-	bool m_ableFinish;
-
-public:
-	CharacterController(Dice* dice_p);
-
-	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
-
-	void initControl();
-
-	bool play(int handX, int handY, std::vector<std::vector<Cell*> >& cells);
-
-private:
-	void searchAllTrack(int maxDistance, std::vector<std::vector<Cell*> >& cells);
-	void searchGoalRoute(int gy, int gx, std::vector<std::vector<Cell*> >& cells);
-};
 
 
 class BattleField {
@@ -78,6 +43,9 @@ public:
 	inline const Character* getActiveCharacter() const { return m_characters[m_activeCharacterIndex]; }
 
 	bool play();
+
+private:
+	void initController();
 };
 
 
