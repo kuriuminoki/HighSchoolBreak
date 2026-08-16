@@ -3,6 +3,8 @@
 
 
 #include <string>
+#include <utility>
+#include <vector>
 
 
 enum CHARACTER_NUM {
@@ -50,6 +52,7 @@ public:
 class CharacterStatus {
 private:
 	int m_maxHp;
+	int m_dispHp;
 	int m_hp;
 	int m_speed;
 
@@ -58,8 +61,26 @@ public:
 
 	// ゲッタ
 	inline int getMaxHp() const { return m_maxHp; }
+	inline int getDispHp() const { return m_dispHp; }
 	inline int getHp() const { return m_hp; }
 	inline int getSpeed() const { return m_speed; }
+
+	// セッタ
+	inline void setDispHp(int dispHp) { m_dispHp = dispHp; }
+	inline void setHp(int hp) { m_hp = hp; }
+
+};
+
+
+class AttackInfo {
+private:
+	std::vector<std::pair<int, std::pair<int, int> > > m_targets; // (攻撃力, (dy, dx))
+
+public:
+	AttackInfo();
+
+	// ゲッタ
+	inline const std::vector<std::pair<int, std::pair<int, int> > >& getTargets() const { return m_targets; }
 };
 
 
@@ -70,6 +91,7 @@ class Character {
 private:
 	CharacterProfile* m_characterProfile;
 	CharacterStatus* m_characterStatus;
+	AttackInfo* m_attackInfo;
 	int m_dispX;
 	int m_dispY;
 	int m_x;
@@ -83,6 +105,7 @@ public:
 	// ゲッタ
 	inline const CharacterProfile* getCharacterProfile() const { return m_characterProfile; }
 	inline const CharacterStatus* getCharacterStatus() const { return m_characterStatus; }
+	inline const AttackInfo* getAttackInfo() const { return m_attackInfo; }
 	inline int getX() const { return m_x; }
 	inline int getY() const { return m_y; }
 	inline int getDispX() const { return m_dispX; }

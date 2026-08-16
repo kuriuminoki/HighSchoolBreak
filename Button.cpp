@@ -88,5 +88,8 @@ void CharacterInfoButton::draw(int handX, int handY, bool fill, const CharacterG
 	// HP
 	int fontSize = 0;
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), 50, 75, 100);
+	int hp = m_character_p->getCharacterStatus()->getHp();
+	int dispHp = m_character_p->getCharacterStatus()->getDispHp();
+	int maxHp = m_character_p->getCharacterStatus()->getMaxHp();
+	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), hp, dispHp, maxHp);
 }

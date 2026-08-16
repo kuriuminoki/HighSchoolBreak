@@ -43,8 +43,24 @@ string CharacterProfile::getFullName() const {
 */
 CharacterStatus::CharacterStatus() {
 	m_maxHp = 100;
+	m_dispHp = m_maxHp;
 	m_hp = m_maxHp;
 	m_speed = 6;
+}
+
+
+/*
+* UŒ‚î•ñ
+*/
+AttackInfo::AttackInfo() {
+	m_targets.push_back(make_pair(10, make_pair(-1, -1)));
+	m_targets.push_back(make_pair(10, make_pair(-1, 0)));
+	m_targets.push_back(make_pair(10, make_pair(-1, 1)));
+	m_targets.push_back(make_pair(10, make_pair(0, 1)));
+	m_targets.push_back(make_pair(10, make_pair(1, 1)));
+	m_targets.push_back(make_pair(10, make_pair(1, 0)));
+	m_targets.push_back(make_pair(10, make_pair(1, -1)));
+	m_targets.push_back(make_pair(10, make_pair(0, -1)));
 }
 
 
@@ -54,6 +70,7 @@ CharacterStatus::CharacterStatus() {
 Character::Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind) {
 	m_characterProfile = characterProfile;
 	m_characterStatus = characterStatus;
+	m_attackInfo = new AttackInfo();
 	m_x = x;
 	m_y = y;
 	m_groupKind = groupKind;
@@ -63,4 +80,5 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 Character::~Character() {
 	delete m_characterProfile;
 	delete m_characterStatus;
+	delete m_attackInfo;
 }

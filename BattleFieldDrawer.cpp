@@ -71,13 +71,13 @@ void BattleFieldDrawer::draw() {
 
 	// 各マスの描画
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
-	for (unsigned int i = 0; i < cells.size(); i++) {
-		for (unsigned int j = 0; j < cells[i].size(); j++) {
+	for (unsigned int y = 0; y < cells.size(); y++) {
+		for (unsigned int x = 0; x < cells[y].size(); x++) {
 			// マスの描画
-			cells[i][j]->draw(m_handX, m_handY, true);
+			cells[y][x]->draw(m_handX, m_handY, true);
 			// マス上にいるキャラ
-			if (cells[i][j]->getCharacter() != nullptr) {
-				dispCharacter.push_back(cells[i][j]->getCharacter());
+			if (cells[y][x]->getCharacter() != nullptr) {
+				dispCharacter.push_back(cells[y][x]->getCharacter());
 			}
 		}
 	}

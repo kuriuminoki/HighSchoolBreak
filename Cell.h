@@ -27,6 +27,9 @@ private:
 
 	int m_markingColor; // マーキングしていないなら-1
 
+	int m_damageValue; // 攻撃範囲となっていないなら0 (生徒の攻撃)
+	// int m_enemyDamageValu;
+
 public:
 	Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
 
@@ -39,6 +42,7 @@ public:
 	// セッタ
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
+	inline void setDamageValue(int damageValue) { m_damageValue = damageValue; }
 
 	void draw(int handX, int handY, bool fill) const;
 
