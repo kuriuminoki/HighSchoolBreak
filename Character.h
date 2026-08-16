@@ -26,15 +26,17 @@ enum GROUP_KIND {
 */
 class CharacterProfile {
 private:
+	int m_id; // 重複なしのID
 	std::string m_lastName;
 	std::string m_firstName;
 
-	CHARACTER_NUM m_characterNum; // キャラの番号
+	CHARACTER_NUM m_characterNum; // キャラの種類番号
 
 public:
-	CharacterProfile(std::string lastName, std::string firstName);
+	CharacterProfile(int id, std::string lastName, std::string firstName);
 
 	// ゲッタ
+	inline int getId() const { return m_id; }
 	inline std::string getLastName() const { return m_lastName; }
 	inline std::string getFirstName() const { return m_firstName; }
 	std::string getFullName() const;
@@ -86,6 +88,12 @@ public:
 	inline int getDispX() const { return m_dispX; }
 	inline int getDispY() const { return m_dispY; }
 	inline GROUP_KIND getGroupKind() const { return m_groupKind; }
+
+	// セッタ
+	inline void setDispX(int x) { m_dispX = x; }
+	inline void setDispY(int y) { m_dispY = y; }
+	inline void setX(int x) { m_x = x; }
+	inline void setY(int y) { m_y = y; }
 };
 
 

@@ -21,6 +21,7 @@ public:
 
 	// ゲッタ
 	inline int getValue() const { return m_value; }
+	inline int isPlaying() const { return m_cnt > 0; }
 
 	void init(int maxValue, int minValue, int goalCount); // 回し始める
 	bool play(); // 回し終わるとtrue

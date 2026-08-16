@@ -1,4 +1,5 @@
 #include "Define.h"
+#include "DxLib.h"
 #include <cmath>
 #include <sstream>
 #include <string>
@@ -35,5 +36,15 @@ void ChangeGameResolution(int* screen) {
 	*screen = MakeScreen(GAME_WIDE, GAME_HEIGHT, TRUE);
 	SetDrawScreen(*screen);
 	SetMouseDispFlag(TRUE);
+}
+
+
+void drawHpBar(int x1, int y1, int x2, int y2, int hp, int nowHp, int maxHp) {
+	DrawBox(x1, y1, x2, y2, BLACK, TRUE);
+	int wide = x2 - x1;
+	int hpWide = wide * hp / maxHp;
+	int nowHpWide = wide * nowHp / maxHp;
+	DrawBox(x1, y1, x1 + nowHpWide, y2, RED, TRUE);
+	DrawBox(x1, y1, x1 + hpWide, y2, GREEN, TRUE);
 }
 

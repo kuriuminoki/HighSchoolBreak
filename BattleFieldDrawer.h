@@ -34,6 +34,10 @@ private:
 	int m_handX, m_handY;
 	CharacterGraphs* m_characterGraphs;
 	int m_font;
+	int m_middleFont;
+	int m_smallFont;
+	
+	int m_cnt; // “_–Å—p
 
 public:
 	BattleFieldDrawer(BattleField* battleField_p);
