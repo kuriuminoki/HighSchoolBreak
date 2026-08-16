@@ -9,7 +9,7 @@ using namespace std;
 
 
 /*
-* ƒ{ƒ^ƒ“‚ÌŠî’êƒNƒ‰ƒX
+* ãƒœã‚¿ãƒ³ã®åŸºåº•ã‚¯ãƒ©ã‚¹
 */
 Button::Button(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) {
 	m_x1 = x1;
@@ -46,7 +46,7 @@ void Button::draw(int handX, int handY, bool fill) const {
 
 
 /*
-* ƒeƒLƒXƒg•t‚«‚Ìƒ{ƒ^ƒ“
+* ï¿½eï¿½Lï¿½Xï¿½gï¿½tï¿½ï¿½ï¿½Ìƒ{ï¿½^ï¿½ï¿½
 */
 TextButton::TextButton(string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) :
 	Button(x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
@@ -63,7 +63,7 @@ void TextButton::draw(int handX, int handY, bool fill, int font, int textColor) 
 
 
 /*
-* ƒLƒƒƒ‰î•ñ‚Ì—Ìˆæ
+* ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì—Ìˆï¿½
 */
 CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const Character* character_p):
 	Button(x1, y1, x2, y2, 10, LIGHT_BLUE, BLUE)
@@ -82,7 +82,7 @@ void CharacterInfoButton::draw(int handX, int handY, bool fill, const CharacterG
 	const double EX = 0.28;
 	DrawRotaGraph((m_x1 + m_x2) / 2, m_y2 - (int)(height * EX / 2), EX, 0.0, handle, TRUE);
 
-	// –¼‘O
+	// ï¿½ï¿½ï¿½O
 	DrawStringToHandle(m_x1, m_y1, m_character_p->getCharacterProfile()->getFullName().c_str(), WHITE, font);
 
 	// HP

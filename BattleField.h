@@ -16,30 +16,30 @@ class TextButton;
 
 class BattleField {
 private:
-	int m_columnSize; // ‰¡ƒTƒCƒY
-	int m_rowSize; // cƒTƒCƒY
-	std::vector<std::vector<Cell*> > m_cells; // ƒ}ƒX cells[Y][X]
+	int m_columnSize; // æ¨ªã‚µã‚¤ã‚º
+	int m_rowSize; // ç¸¦ã‚µã‚¤ã‚º
+	std::vector<std::vector<Cell*> > m_cells; // ãƒã‚¹ cells[Y][X]
 	std::vector<Character*> m_characters;
 	std::vector<CharacterInfoButton*> m_characterInfoButton;
 	Dice* m_dice;
-	TextButton* m_endActionButton; // s“®I—¹ƒ{ƒ^ƒ“
+	TextButton* m_endActionButton; // ï¿½sï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½{ï¿½^ï¿½ï¿½
 
 	int m_handX, m_handY;
-	int m_activeCharacterIndex; // ¡s“®’†‚ÌƒLƒƒƒ‰
+	int m_activeCharacterIndex; // ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½ÌƒLï¿½ï¿½ï¿½ï¿½
 	CharacterController* m_characterController;
 
 public:
 	BattleField();
 	~BattleField();
 
-	// ƒQƒbƒ^
+	// ã‚²ãƒƒã‚¿
 	inline const std::vector<std::vector<Cell*> > getCells() const { return m_cells; }
 	inline const std::vector<Character*> getCharacters() const { return m_characters; }
 	inline const std::vector<CharacterInfoButton*> getCharacterInfoButton() const { return m_characterInfoButton; }
 	inline const Dice* getDice() const { return m_dice; }
 	inline const TextButton* getEndActionButton() const { return m_endActionButton; }
 
-	// “Áê‚Èˆ—‚ğ‚·‚éƒQƒbƒ^
+	// ï¿½ï¿½ï¿½ï¿½Èï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Qï¿½bï¿½^
 	inline const Character* getActiveCharacter() const { return m_characters[m_activeCharacterIndex]; }
 
 	bool play();

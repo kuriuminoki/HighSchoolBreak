@@ -15,7 +15,7 @@ using namespace std;
 
 
 /*
-* ‚·‚²‚ë‚­ƒQ[ƒ€
+* ã™ã”ã‚ãã‚²ãƒ¼ãƒ 
 */
 BattleField::BattleField() {
 
@@ -36,8 +36,8 @@ BattleField::BattleField() {
 	}
 
 	int characterSize = 6;
-	const char* lastNames[] = { "ƒAƒJƒcƒL", "ƒgƒEƒm", "ƒ^ƒLƒm", "ƒ‚ƒ“ƒXƒ^[", "ƒ‚ƒ“ƒXƒ^[", "ƒ‚ƒ“ƒXƒ^[" };
-	const char* firstNames[] = { "ƒŠƒ‡ƒEƒ„", "ƒqƒiƒ~", "ƒGƒCƒŠ", "A", "B", "C" };
+	const char* lastNames[] = { "ã‚¢ã‚«ãƒ„ã‚­", "ãƒˆã‚¦ãƒ", "ã‚¿ã‚­ãƒ", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼" };
+	const char* firstNames[] = { "ãƒªãƒ§ã‚¦ãƒ¤", "ãƒ’ãƒŠãƒŸ", "ã‚¨ã‚¤ãƒª", "A", "B", "C" };
 	int infoNow = 0;
 	const int INFO_WIDE = applyEx(250, exX);
 	const int INFO_HEIGHT = applyEx(360, exX);
@@ -63,7 +63,7 @@ BattleField::BattleField() {
 	m_activeCharacterIndex = 0;
 	initController();
 
-	m_endActionButton = new TextButton("s“®I—¹", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
+	m_endActionButton = new TextButton("ï¿½sï¿½ï¿½ï¿½Iï¿½ï¿½", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 }
 
 
@@ -107,7 +107,7 @@ bool BattleField::play() {
 	GetMousePoint(&m_handX, &m_handY);
 	m_endActionButton->off(DARK_RED);
 
-	// ƒLƒƒƒ‰‚Ì‘€ì
+	// ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½ï¿½
 	if (m_characterController->play(m_handX, m_handY, m_cells)) {
 		m_endActionButton->on();
 		if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
@@ -117,14 +117,14 @@ bool BattleField::play() {
 		}
 	}
 
-	// Šeƒ}ƒX‚Ì‰Šú‰»
+	// ï¿½eï¿½}ï¿½Xï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
 			m_cells[y][x]->setDamageValue(0);
 		}
 	}
 
-	// UŒ‚”ÍˆÍ‚ğİ’è
+	// ï¿½Uï¿½ï¿½ï¿½ÍˆÍ‚ï¿½İ’ï¿½
 	if (getActiveCharacter()->getGroupKind() == STUDENT) {
 		const vector<pair<int, pair<int, int> > > targets = getActiveCharacter()->getAttackInfo()->getTargets();
 		for (unsigned int y = 0; y < m_cells.size(); y++) {

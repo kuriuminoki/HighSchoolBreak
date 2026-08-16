@@ -9,8 +9,8 @@ class Character;
 
 
 enum CELL_KIND {
-	NONE,	// ’Ê‚ê‚È‚¢
-	NORMAL,	// ‰½‚à‚È‚¢•’Ê‚Ìƒ}ƒX
+	NONE,	// é€šã‚Œãªã„
+	NORMAL,	// ä½•ã‚‚ãªã„æ™®é€šã®ãƒã‚¹
 };
 
 
@@ -23,11 +23,16 @@ class Cell : public Button {
 private:
 	CELL_KIND m_cellKind;
 
-	Character* m_character_p; // ‚±‚Ìƒ}ƒX‚É‚¢‚éƒLƒƒƒ‰ ‚¢‚È‚¯‚ê‚Înull
+	Character* m_character_p; // ã“ã®ãƒã‚¹ã«ã„ã‚‹ã‚­ãƒ£ãƒ© ã„ãªã‘ã‚Œã°null
 
-	int m_markingColor; // ƒ}[ƒLƒ“ƒO‚µ‚Ä‚¢‚È‚¢‚È‚ç-1
+	int m_markingColor; // ãƒãƒ¼ã‚­ãƒ³ã‚°ã—ã¦ã„ãªã„ãªã‚‰-1
 
-	int m_damageValue; // UŒ‚”ÍˆÍ‚Æ‚È‚Á‚Ä‚¢‚È‚¢‚È‚ç0 (¶“k‚ÌUŒ‚)
+	int m_damageValue; // æ”»æ’ƒç¯„å›²ã¨ãªã£ã¦ã„ãªã„ãªã‚‰0 (ç”Ÿå¾’ã®æ”»æ’ƒ)
+	// int m_enemyDamageValu;
+
+	int m_markingColor; // ï¿½}ï¿½[ï¿½Lï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½-1
+
+	int m_damageValue; // ï¿½Uï¿½ï¿½ï¿½ÍˆÍ‚Æ‚È‚ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½È‚ï¿½0 (ï¿½ï¿½ï¿½kï¿½ÌUï¿½ï¿½)
 	// int m_enemyDamageValu;
 
 public:
@@ -35,18 +40,18 @@ public:
 
 	inline CELL_KIND getCellKind() const { return m_cellKind; }
 
-	// ƒQƒbƒ^
+	// ã‚²ãƒƒã‚¿
 	inline Character* getCharacter() const { return m_character_p; }
 	inline int getMarkingColor() const { return m_markingColor; }
 
-	// ƒZƒbƒ^
+	// ã‚»ãƒƒã‚¿
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
 	inline void setDamageValue(int damageValue) { m_damageValue = damageValue; }
 
 	void draw(int handX, int handY, bool fill) const;
 
-	bool ableMoving(); // ’Ê‰ß‚Å‚«‚éƒ}ƒX‚©‚Ç‚¤‚©
+	bool ableMoving(); // ï¿½Ê‰ß‚Å‚ï¿½ï¿½ï¿½}ï¿½Xï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
 
 };
 
