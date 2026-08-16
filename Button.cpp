@@ -9,7 +9,7 @@ using namespace std;
 
 
 /*
-* ボタンの基底クラス
+* 繝懊ち繝ｳ縺ｮ蝓ｺ蠎輔け繝ｩ繧ｹ
 */
 Button::Button(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) {
 	m_x1 = x1;
@@ -45,6 +45,9 @@ void Button::draw(int handX, int handY, bool fill) const {
 }
 
 
+/*
+* 繝�繧ｭ繧ｹ繝井ｻ倥″縺ｮ繝懊ち繝ｳ
+*/
 TextButton::TextButton(string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) :
 	Button(x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
 {
@@ -55,12 +58,12 @@ void TextButton::draw(int handX, int handY, bool fill, int font, int textColor) 
 	Button::draw(handX, handY, fill);
 	int fontSize = 0;
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * (m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
+	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * ((int)m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
 }
 
 
 /*
-* キャラ情報の領域
+* 繧ｭ繝｣繝ｩ諠�蝣ｱ縺ｮ鬆伜沺
 */
 CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const Character* character_p):
 	Button(x1, y1, x2, y2, 10, LIGHT_BLUE, BLUE)
@@ -79,11 +82,14 @@ void CharacterInfoButton::draw(int handX, int handY, bool fill, const CharacterG
 	const double EX = 0.28;
 	DrawRotaGraph((m_x1 + m_x2) / 2, m_y2 - (int)(height * EX / 2), EX, 0.0, handle, TRUE);
 
-	// 名前
+	// 蜷榊燕
 	DrawStringToHandle(m_x1, m_y1, m_character_p->getCharacterProfile()->getFullName().c_str(), WHITE, font);
 
 	// HP
 	int fontSize = 0;
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), 50, 75, 100);
+	int hp = m_character_p->getCharacterStatus()->getHp();
+	int dispHp = m_character_p->getCharacterStatus()->getDispHp();
+	int maxHp = m_character_p->getCharacterStatus()->getMaxHp();
+	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), hp, dispHp, maxHp);
 }

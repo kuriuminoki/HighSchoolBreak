@@ -28,7 +28,7 @@ bool Dice::play() {
 		return true;
 	}
 	m_cnt--;
-	m_value = GetRand(m_maxValue - m_minValue) + 1 + m_minValue;
+	m_value = GetRand(m_maxValue - m_minValue) + m_minValue;
 	return false;
 }
 

@@ -10,74 +10,42 @@ class Cell;
 class Character;
 class CharacterInfoButton;
 class Dice;
+class CharacterController;
 class TextButton;
-
-
-enum DIRECTION {
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN
-};
-
-
-// ƒLƒƒƒ‰‚ÌˆÚ“® (warp=true‚È‚çuŠÔˆÚ“®)
-bool move(Character* character_p, int gy, int gx, std::vector<std::vector<Cell*> >& cells, bool warp);
-
-
-class CharacterController {
-private:
-	Dice* m_dice_p; // ƒTƒCƒRƒ
-	Character* m_character_p; // ‘€ìƒLƒƒƒ‰
-
-	std::vector<std::vector<DIRECTION> > m_routeMemo; // Šeƒ}ƒX‚ÖˆÚ“®‚·‚éÛA‚Ç‚Ì•ûŒü‚ÉˆÚ“®‚µ‚½Œ‹‰Ê“ž’…‚·‚é‚©
-	std::vector<std::pair<int, int> > m_track; // ƒLƒƒƒ‰‚ÌˆÚ“®—\’èƒ}ƒX æ“ª‚ªƒS[ƒ‹’n“_A––”ö‚ªƒXƒ^[ƒg’n“_
-	bool m_ableFinish;
-
-public:
-	CharacterController(Dice* dice_p);
-
-	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
-
-	void initControl();
-
-	bool play(int handX, int handY, std::vector<std::vector<Cell*> >& cells);
-
-private:
-	void searchAllTrack(int maxDistance, std::vector<std::vector<Cell*> >& cells);
-	void searchGoalRoute(int gy, int gx, std::vector<std::vector<Cell*> >& cells);
-};
 
 
 class BattleField {
 private:
-	int m_columnSize; // ‰¡ƒTƒCƒY
-	int m_rowSize; // cƒTƒCƒY
-	std::vector<std::vector<Cell*> > m_cells; // ƒ}ƒX cells[Y][X]
+	int m_columnSize; // æ¨ªã‚µã‚¤ã‚º
+	int m_rowSize; // ç¸¦ã‚µã‚¤ã‚º
+	std::vector<std::vector<Cell*> > m_cells; // ãƒžã‚¹ cells[Y][X]
 	std::vector<Character*> m_characters;
 	std::vector<CharacterInfoButton*> m_characterInfoButton;
 	Dice* m_dice;
-	TextButton* m_endActionButton; // s“®I—¹ƒ{ƒ^ƒ“
+	TextButton* m_endActionButton; // è¡Œå‹•çµ‚äº†ãƒœã‚¿ãƒ³
 
 	int m_handX, m_handY;
-	int m_activeCharacterIndex; // ¡s“®’†‚ÌƒLƒƒƒ‰
+	int m_activeCharacterIndex; // ä»Šè¡Œå‹•ä¸­ã®ã‚­ãƒ£ãƒ©
 	CharacterController* m_characterController;
 
 public:
 	BattleField();
 	~BattleField();
 
-	// ƒQƒbƒ^
+	// ã‚²ãƒƒã‚¿
 	inline const std::vector<std::vector<Cell*> > getCells() const { return m_cells; }
 	inline const std::vector<Character*> getCharacters() const { return m_characters; }
 	inline const std::vector<CharacterInfoButton*> getCharacterInfoButton() const { return m_characterInfoButton; }
 	inline const Dice* getDice() const { return m_dice; }
 	inline const TextButton* getEndActionButton() const { return m_endActionButton; }
 
-	// “ÁŽê‚Èˆ—‚ð‚·‚éƒQƒbƒ^
+	// ç‰¹æ®Šãªå‡¦ç†ã‚’ã™ã‚‹ã‚²ãƒƒã‚¿
 	inline const Character* getActiveCharacter() const { return m_characters[m_activeCharacterIndex]; }
 
 	bool play();
+
+private:
+	void initController();
 };
 
 

@@ -2,6 +2,7 @@
 #include "Button.h"
 #include "Cell.h"
 #include "Character.h"
+#include "CharacterController.h"
 #include "Control.h"
 #include "Define.h"
 #include "Dice.h"
@@ -13,186 +14,8 @@
 using namespace std;
 
 
-// ƒLƒƒƒ‰‚ÌˆÚ“® (warp=true‚È‚çuŠÔˆÚ“®)
-bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells, bool warp) {
-	int goalDispX = (cells[gy][gx]->getX1() + cells[gy][gx]->getX2()) / 2;
-	int goalDispY = (cells[gy][gx]->getY1() + cells[gy][gx]->getY2()) / 2;
-
-	if (character_p->getX() != gx || character_p->getY() != gy) {
-		cells[character_p->getY()][character_p->getX()]->setCharacter(nullptr);
-		cells[gy][gx]->setCharacter(character_p);
-		character_p->setY(gy);
-		character_p->setX(gx);
-	}
-
-	if (warp) {
-		character_p->setDispY(goalDispY);
-		character_p->setDispX(goalDispX);
-		return true;
-	}
-	else {
-		int moveSpeedY = character_p->getDispY() < goalDispY ? 10 : -10;
-		int moveSpeedX = character_p->getDispX() < goalDispX ? 10 : -10;
-
-		if (character_p->getDispY() != goalDispY) {
-			if (abs(character_p->getDispY() - goalDispY) < abs(moveSpeedY)) {
-				character_p->setDispY(goalDispY);
-			}
-			else {
-				character_p->setDispY(character_p->getDispY() + moveSpeedY);
-			}
-		}
-		if (character_p->getDispX() != goalDispX) {
-			if (abs(character_p->getDispX() - goalDispX) < abs(moveSpeedX)) {
-				character_p->setDispX(goalDispX);
-			}
-			else {
-				character_p->setDispX(character_p->getDispX() + moveSpeedX);
-			}
-		}
-
-		if (character_p->getDispY() == goalDispY && character_p->getDispX() == goalDispX) {
-			return true;
-		}
-	}
-	return false;
-}
-
-
 /*
-* ƒLƒƒƒ‰‘€ì
-*/
-CharacterController::CharacterController(Dice* dice_p) {
-	m_dice_p = dice_p;
-	m_ableFinish = false;
-}
-
-
-void CharacterController::initControl() {
-	m_ableFinish = false;
-	m_dice_p->on();
-	for (unsigned int i = 0; i < m_routeMemo.size(); i++) {
-		m_routeMemo[i].clear();
-	}
-	m_routeMemo.clear();
-	m_track.clear();
-}
-
-
-bool CharacterController::play(int handX, int handY, std::vector<std::vector<Cell*> >& cells) {
-	if (leftClick() == 1) {
-		if (m_dice_p->overlap(handX, handY)) {
-			m_dice_p->init(1, 6, 60);
-			m_dice_p->off(DARK_YELLOW);
-		}
-	}
-	if (!m_dice_p->getAbleClick() && !m_ableFinish) {
-		if (m_dice_p->play() && m_routeMemo.empty()) {
-			// •—Dæ’Tõ‚ÅŠeƒ}ƒX‚Ö‚ÌÅ’Zƒ‹[ƒg‚ğŒŸõ
-			searchAllTrack(m_dice_p->getValue(), cells);
-		}
-		else if (leftClick() == 1 && m_track.empty() && !m_routeMemo.empty()) {
-			// –Ú•W’n“_‚Ü‚Å‚ÌŒo˜H‚ğİ’è
-			for (unsigned int y = 0; y < cells.size(); y++) {
-				for (unsigned int x = 0; x < cells[y].size(); x++) {
-					if (cells[y][x]->overlap(handX, handY) && cells[y][x]->getMarkingColor() != -1) {
-						searchGoalRoute(y, x, cells);
-					}
-				}
-			}
-		}
-	}
-
-	if (!m_track.empty()) {
-		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false)) {
-			m_track.pop_back();
-		}
-		if (m_track.empty()) {
-			for (unsigned int y = 0; y < cells.size(); y++) {
-				for (unsigned int x = 0; x < cells[y].size(); x++) {
-					cells[y][x]->setMarkingColor(-1);
-				}
-			}
-			m_ableFinish = true;
-		}
-	}
-
-	if (m_ableFinish) {
-		return true; // s“®I—¹‚Å‚«‚é
-	}
-
-	return false;
-}
-
-
-void CharacterController::searchAllTrack(int maxDistance, std::vector<std::vector<Cell*> >& cells) {
-	m_routeMemo.assign(cells.size(), vector<DIRECTION>(cells[0].size(), LEFT));
-
-	queue<pair<int, pair<int, int> > > que; // ‹——£AYXÀ•W
-	que.push(make_pair(0, make_pair(m_character_p->getY(), m_character_p->getX())));
-	while (!que.empty()) {
-		pair<int, pair<int, int> > distance = que.front();
-		que.pop();
-		int d = distance.first;
-		if (d > maxDistance) {
-			continue;
-		}
-		int y = distance.second.first;
-		int x = distance.second.second;
-		cells[y][x]->setMarkingColor(LIGHT_RED);
-		if (x > 0 && cells[y][x - 1]->getMarkingColor() == -1 && cells[y][x - 1]->ableMoving()) {
-			que.push(make_pair(d + 1, make_pair(y, x - 1)));
-			m_routeMemo[y][x - 1] = LEFT;
-		}
-		if (y > 0 && cells[y - 1][x]->getMarkingColor() == -1 && cells[y - 1][x]->ableMoving()) {
-			que.push(make_pair(d + 1, make_pair(y - 1, x)));
-			m_routeMemo[y - 1][x] = UP;
-		}
-		if (x < (int)cells[0].size() - 1 && cells[y][x + 1]->getMarkingColor() == -1 && cells[y][x + 1]->ableMoving()) {
-			que.push(make_pair(d + 1, make_pair(y, x + 1)));
-			m_routeMemo[y][x + 1] = RIGHT;
-		}
-		if (y < (int)cells.size() - 1 && cells[y + 1][x]->getMarkingColor() == -1 && cells[y + 1][x]->ableMoving()) {
-			que.push(make_pair(d + 1, make_pair(y + 1, x)));
-			m_routeMemo[y + 1][x] = DOWN;
-		}
-	}
-}
-
-
-void CharacterController::searchGoalRoute(int gy, int gx, vector<vector<Cell*> >& cells) {
-	m_track.clear();
-	int sy = m_character_p->getY();
-	int sx = m_character_p->getX();
-	while (sy != gy || sx != gx) {
-		m_track.push_back(make_pair(gy, gx));
-		switch (m_routeMemo[gy][gx]) {
-		case LEFT:
-			gx++;
-			break;
-		case RIGHT:
-			gx--;
-			break;
-		case UP:
-			gy++;
-			break;
-		case DOWN:
-			gy--;
-			break;
-		}
-	}
-	//reverse(m_track.begin(), m_track.end());
-
-	// ‚¨‘|œ
-	for (unsigned int i = 0; i < m_routeMemo.size(); i++) {
-		m_routeMemo[i].clear();
-	}
-	m_routeMemo.clear();
-}
-
-
-/*
-* ‚·‚²‚ë‚­ƒQ[ƒ€
+* ã™ã”ã‚ãã‚²ãƒ¼ãƒ 
 */
 BattleField::BattleField() {
 
@@ -213,8 +36,8 @@ BattleField::BattleField() {
 	}
 
 	int characterSize = 6;
-	const char* lastNames[] = { "ƒAƒJƒcƒL", "ƒgƒEƒm", "ƒ^ƒLƒm", "ƒ‚ƒ“ƒXƒ^[", "ƒ‚ƒ“ƒXƒ^[", "ƒ‚ƒ“ƒXƒ^[" };
-	const char* firstNames[] = { "ƒŠƒ‡ƒEƒ„", "ƒqƒiƒ~", "ƒGƒCƒŠ", "A", "B", "C" };
+	const char* lastNames[] = { "ã‚¢ã‚«ãƒ„ã‚­", "ãƒˆã‚¦ãƒ", "ã‚¿ã‚­ãƒ", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼", "ãƒ¢ãƒ³ã‚¹ã‚¿ãƒ¼" };
+	const char* firstNames[] = { "ãƒªãƒ§ã‚¦ãƒ¤", "ãƒ’ãƒŠãƒŸ", "ã‚¨ã‚¤ãƒª", "A", "B", "C" };
 	int infoNow = 0;
 	const int INFO_WIDE = applyEx(250, exX);
 	const int INFO_HEIGHT = applyEx(360, exX);
@@ -236,11 +59,11 @@ BattleField::BattleField() {
 	}
 
 	m_dice = new Dice(GAME_WIDE - applyEx(350, exX), GAME_HEIGHT - applyEx(330, exY), GAME_WIDE - applyEx(50, exX), GAME_HEIGHT - applyEx(30, exY), applyEx(6, exX), LIGHT_YELLOW, RED);
-	m_characterController = new CharacterController(m_dice);
+	m_characterController = nullptr;
 	m_activeCharacterIndex = 0;
-	m_characterController->setCharacter(m_characters[m_activeCharacterIndex]);
+	initController();
 
-	m_endActionButton = new TextButton("s“®I—¹", applyEx(1200, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1400, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
+	m_endActionButton = new TextButton("è¡Œå‹•çµ‚äº†", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 }
 
 
@@ -257,20 +80,65 @@ BattleField::~BattleField() {
 		delete m_characterInfoButton[i];
 	}
 	delete m_dice;
+	delete m_characterController;
 	delete m_endActionButton;
+}
+
+
+void BattleField::initController() {
+	if (m_characterController != nullptr) {
+		delete m_characterController;
+	}
+	switch (m_characters[m_activeCharacterIndex]->getGroupKind()) {
+	case STUDENT:
+		m_characterController = new StudentController(m_dice);
+		break;
+	default:
+		m_characterController = new EnemyController(m_dice);
+		break;
+	}
+	m_characterController->setCharacter(m_characters[m_activeCharacterIndex]);
+	m_characterController->initControl();
+	m_dice->on();
 }
 
 
 bool BattleField::play() {
 	GetMousePoint(&m_handX, &m_handY);
+	m_endActionButton->off(DARK_RED);
 
-	if (m_characters[m_activeCharacterIndex]->getGroupKind() == STUDENT) {
-		if (m_characterController->play(m_handX, m_handY, m_cells)) {
-			if (leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
-				m_activeCharacterIndex++;
-				m_activeCharacterIndex %= (int)m_characters.size();
-				m_characterController->setCharacter(m_characters[m_activeCharacterIndex]);
-				m_characterController->initControl();
+	// ã‚­ãƒ£ãƒ©ã®æ“ä½œ
+	if (m_characterController->play(m_handX, m_handY, m_cells)) {
+		m_endActionButton->on();
+		if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
+			m_activeCharacterIndex++;
+			m_activeCharacterIndex %= (int)m_characters.size();
+			initController();
+		}
+	}
+
+	// å„ãƒã‚¹ã®åˆæœŸåŒ–
+	for (unsigned int y = 0; y < m_cells.size(); y++) {
+		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+			m_cells[y][x]->setDamageValue(0);
+		}
+	}
+
+	// æ”»æ’ƒç¯„å›²ã‚’è¨­å®š
+	if (getActiveCharacter()->getGroupKind() == STUDENT) {
+		const vector<pair<int, pair<int, int> > > targets = getActiveCharacter()->getAttackInfo()->getTargets();
+		for (unsigned int y = 0; y < m_cells.size(); y++) {
+			for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+				if (!m_cells[y][x]->overlap(m_handX, m_handY) || m_cells[y][x]->getMarkingColor() == -1) {
+					continue;
+				}
+				for (unsigned int i = 0; i < targets.size(); i++) {
+					int ty = y + targets[i].second.first;
+					int tx = x + targets[i].second.second;
+					if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
+						m_cells[ty][tx]->setDamageValue(targets[i].first);
+					}
+				}
 			}
 		}
 	}

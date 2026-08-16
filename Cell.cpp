@@ -1,4 +1,5 @@
 #include "Cell.h"
+#include "Character.h"
 #include "Define.h"
 
 
@@ -9,6 +10,7 @@ Cell::Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, i
 
 	m_character_p = nullptr;
 	m_markingColor = -1;
+	m_damageValue = 0;
 }
 
 
@@ -18,6 +20,10 @@ void Cell::draw(int handX, int handY, bool fill) const {
 	}
 	int color = m_markingColor != -1 ? m_markingColor : m_innerColor;
 	DrawBox(m_x1, m_y1, m_x2, m_y2, color, TRUE);
+
+	if (m_damageValue > 0) {
+		DrawCircle((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, (m_y2 - m_y1) / 2, LIGHT_RED);
+	}
 }
 
 
