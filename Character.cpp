@@ -7,7 +7,8 @@ using namespace std;
 /*
 * プロフィール
 */
-CharacterProfile::CharacterProfile(std::string lastName, std::string firstName) {
+CharacterProfile::CharacterProfile(int id, std::string lastName, std::string firstName) {
+	m_id = id;
 	m_lastName = lastName;
 	m_firstName = firstName;
 

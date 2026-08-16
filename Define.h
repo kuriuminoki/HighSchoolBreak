@@ -37,6 +37,9 @@ int applyEx(int v, double ex);
 // 解像度変更
 void ChangeGameResolution(int* screen);
 
+// HPバーの描画
+void drawHpBar(int x1, int y1, int x2, int y2, int hp, int nowHp, int maxHp);
+
 #define GAME_COLOR_BIT_NUM 16
 
 // DrawFormatString関数で表示される文字の大きさは20くらい

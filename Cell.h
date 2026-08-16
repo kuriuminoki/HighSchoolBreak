@@ -25,6 +25,8 @@ private:
 
 	Character* m_character_p; // このマスにいるキャラ いなければnull
 
+	int m_markingColor; // マーキングしていないなら-1
+
 public:
 	Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
 
@@ -32,9 +34,15 @@ public:
 
 	// ゲッタ
 	inline Character* getCharacter() const { return m_character_p; }
+	inline int getMarkingColor() const { return m_markingColor; }
 
 	// セッタ
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
+	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
+
+	void draw(int handX, int handY, bool fill) const;
+
+	bool ableMoving(); // 通過できるマスかどうか
 
 };
 

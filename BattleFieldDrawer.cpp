@@ -46,19 +46,28 @@ BattleFieldDrawer::BattleFieldDrawer(BattleField* battleField_p) {
 	getGameEx(m_exX, m_exY);
 	m_characterGraphs = new CharacterGraphs();
 	m_font = CreateFontToHandle(nullptr, applyEx(100, m_exX), 50);
+	m_middleFont = CreateFontToHandle(nullptr, applyEx(50, m_exX), 10);
+	m_smallFont = CreateFontToHandle(nullptr, applyEx(20, m_exX), 7);
+
+	m_cnt = 0;
 }
 
 
 BattleFieldDrawer::~BattleFieldDrawer() {
 	delete m_characterGraphs;
 	DeleteFontToHandle(m_font);
+	DeleteFontToHandle(m_middleFont);
+	DeleteFontToHandle(m_smallFont);
 }
 
 
 void BattleFieldDrawer::draw() {
 	GetMousePoint(&m_handX, &m_handY);
+	m_cnt++;
 
 	DrawBox(0, 0, GAME_WIDE, GAME_HEIGHT, GRAY, TRUE);
+
+	vector<const Character*> dispCharacter;
 
 	// 各マスの描画
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
@@ -68,22 +77,35 @@ void BattleFieldDrawer::draw() {
 			cells[i][j]->draw(m_handX, m_handY, true);
 			// マス上にいるキャラ
 			if (cells[i][j]->getCharacter() != nullptr) {
-				int handle = m_characterGraphs->getCharacterIconGraphs(cells[i][j]->getCharacter()->getCharacterProfile()->getCharacterIconGraphNum());
-				int x = (cells[i][j]->getX1() + cells[i][j]->getX2()) / 2;
-				int y = (cells[i][j]->getY1() + cells[i][j]->getY2()) / 2;
-				int wide = 0, height = 0;
-				GetGraphSize(handle, &wide, &height);
-				DrawRotaGraph(x, cells[i][j]->getY2() - (int)(height * 0.1 / 2), 0.1, 0.0, handle, TRUE);
+				dispCharacter.push_back(cells[i][j]->getCharacter());
 			}
 		}
+	}
+
+	// 各キャラの描画
+	for (unsigned int i = 0; i < dispCharacter.size(); i++) {
+		int handle = m_characterGraphs->getCharacterIconGraphs(dispCharacter[i]->getCharacterProfile()->getCharacterIconGraphNum());
+		int x = dispCharacter[i]->getDispX();
+		int y = dispCharacter[i]->getDispY();
+		int wide = 0, height = 0;
+		GetGraphSize(handle, &wide, &height);
+		if (m_battleField_p->getActiveCharacter()->getCharacterProfile()->getId() == dispCharacter[i]->getCharacterProfile()->getId()
+			&& m_cnt / 3 % 2 == 0) {
+			SetDrawBright(100, 100, 100);
+		}
+		DrawRotaGraph(x, y - (int)(height * 0.1 / 4), 0.1, 0.0, handle, TRUE);
+		SetDrawBright(255, 255, 255);
 	}
 
 	// キャラ情報の描画
 	const vector<CharacterInfoButton*> characterInfoButton = m_battleField_p->getCharacterInfoButton();
 	for (unsigned int i = 0; i < characterInfoButton.size(); i++) {
-		characterInfoButton[i]->draw(m_handX, m_handY, false, m_characterGraphs);
+		characterInfoButton[i]->draw(m_handX, m_handY, false, m_characterGraphs, m_smallFont);
 	}
 
 	// サイコロの描画
 	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);
+
+	// ボタンの描画
+	m_battleField_p->getEndActionButton()->draw(m_handX, m_handY, true, m_middleFont, BLACK);
 }

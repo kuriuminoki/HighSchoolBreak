@@ -11,6 +11,10 @@ protected:
 	int m_edgeLength;
 	int m_innerColor, m_edgeColor;
 
+	double m_exX, m_exY;
+	bool m_ableClick;
+	int m_offColor;
+
 public:
 	Button(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
 
@@ -19,17 +23,39 @@ public:
 	inline int getY1() const { return m_y1; }
 	inline int getX2() const { return m_x2; }
 	inline int getY2() const { return m_y2; }
+	inline bool getAbleClick() const { return m_ableClick; }
+
+	// ボタンのON/OFF
+	inline void on() { m_ableClick = true; }
+	inline void off(int color) { m_ableClick = false; m_offColor = color; }
 
 	// カーソルが重なっているか
-	inline bool overlap(int handX, int handY) const { return  handX > m_x1 && handX < m_x2 && handY > m_y1 && handY < m_y2; }
+	inline bool overlap(int handX, int handY) const { return  m_ableClick && handX > m_x1 && handX < m_x2 && handY > m_y1 && handY < m_y2; }
 
 	// 描画
 	virtual void draw(int handX, int handY, bool fill) const;
 };
 
 
+#include <string>
+
 class Character;
 class CharacterGraphs;
+
+
+/*
+* テキスト付きのボタン
+*/
+class TextButton : public Button
+{
+private:
+	std::string m_dispText;
+
+public:
+	TextButton(std::string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
+
+	void draw(int handX, int handY, bool fill, int font, int textColor) const;
+};
 
 
 /*
@@ -46,7 +72,7 @@ public:
 	// セッタ
 	inline void setCharacter(const Character* character_p) { m_character_p = character_p; }
 
-	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs) const;
+	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const;
 };
 
 
