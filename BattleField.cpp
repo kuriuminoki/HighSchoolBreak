@@ -63,6 +63,7 @@ BattleField::BattleField() {
 	m_activeCharacterIndex = 0;
 	initController();
 
+	m_cellInfoButton = new CellInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(900, exX) + INFO_WIDE, GAME_HEIGHT - applyEx(30, exY), nullptr);
 	m_endActionButton = new TextButton("行動終了", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 
 	m_alreadyAttack = false;
@@ -83,6 +84,7 @@ BattleField::~BattleField() {
 	}
 	delete m_dice;
 	delete m_characterController;
+	delete m_cellInfoButton;
 	delete m_endActionButton;
 }
 
@@ -138,6 +140,14 @@ bool BattleField::play() {
 				overlapX = x;
 			}
 		}
+	}
+
+	// カーソルが重なっているマスの情報を表示する
+	if (overlapX >= 0 && overlapY >= 0) {
+		m_cellInfoButton->setCell(m_cells[overlapY][overlapX]);
+	}
+	else {
+		m_cellInfoButton->setCell(nullptr);
 	}
 
 	// 攻撃範囲を設定

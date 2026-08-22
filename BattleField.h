@@ -7,6 +7,7 @@
 
 
 class Cell;
+class CellInfoButton;
 class Character;
 class CharacterInfoButton;
 class Dice;
@@ -21,6 +22,7 @@ private:
 	std::vector<std::vector<Cell*> > m_cells; // マス cells[Y][X]
 	std::vector<Character*> m_characters;
 	std::vector<CharacterInfoButton*> m_characterInfoButton;
+	CellInfoButton* m_cellInfoButton;
 	Dice* m_dice;
 	TextButton* m_endActionButton; // 行動終了ボタン
 
@@ -37,6 +39,7 @@ public:
 	inline const std::vector<std::vector<Cell*> > getCells() const { return m_cells; }
 	inline const std::vector<Character*> getCharacters() const { return m_characters; }
 	inline const std::vector<CharacterInfoButton*> getCharacterInfoButton() const { return m_characterInfoButton; }
+	inline const CellInfoButton* getCellInfoButton() const { return m_cellInfoButton; }
 	inline const Dice* getDice() const { return m_dice; }
 	inline const TextButton* getEndActionButton() const { return m_endActionButton; }
 

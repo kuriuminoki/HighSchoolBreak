@@ -39,6 +39,7 @@ void ChangeGameResolution(int* screen) {
 }
 
 
+// HPÉoÅ[Çï\é¶
 void drawHpBar(int x1, int y1, int x2, int y2, int hp, int nowHp, int maxHp) {
 	DrawBox(x1, y1, x2, y2, BLACK, TRUE);
 	int wide = x2 - x1;

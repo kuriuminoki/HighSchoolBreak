@@ -1,9 +1,13 @@
 #include "Button.h"
 #include "BattleFieldDrawer.h"
+#include "Cell.h"
 #include "Character.h"
 #include "Define.h"
 #include "Graphs.h"
 #include "DxLib.h"
+
+
+#include <sstream>
 
 
 using namespace std;
@@ -72,7 +76,7 @@ CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const C
 	m_character_p = character_p;
 }
 
-void CharacterInfoButton::draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const {
+void CharacterInfoButton::draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const {
 	if (m_character_p == nullptr) {
 		return;
 	}
@@ -93,4 +97,41 @@ void CharacterInfoButton::draw(int handX, int handY, bool fill, const CharacterG
 	int dispHp = m_character_p->getCharacterStatus()->getDispHp();
 	int maxHp = m_character_p->getCharacterStatus()->getMaxHp();
 	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), hp, dispHp, maxHp);
+}
+
+
+/*
+* マス情報の領域
+*/
+CellInfoButton::CellInfoButton(int x1, int y1, int x2, int y2, const Cell* cell_p) :
+	Button(x1, y1, x2, y2, 10, GRAY2, RED)
+{
+	m_cell_p = cell_p;
+}
+
+void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const {
+	if (m_cell_p == nullptr) {
+		return;
+	}
+	Button::draw(handX, handY, true);
+
+	ostringstream oss;
+	switch(m_cell_p->getCellKind()) {
+	case NORMAL:
+		oss << "何もないマス";
+		break;
+	}
+	DrawStringToHandle(m_x1, m_y1, oss.str().c_str(), BLACK, font);
+
+	int fontSize = 0;
+	GetFontStateToHandle(NULL, &fontSize, NULL, font);
+	int indentSize = fontSize / 2;
+	const Character* c = m_cell_p->getCharacter();
+	if (c != nullptr) {
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, m_cell_p->getCharacter()->getCharacterProfile()->getFullName().c_str(), WHITE, font);
+		int hp = c->getCharacterStatus()->getHp();
+		int dispHp = c->getCharacterStatus()->getDispHp();
+		int maxHp = c->getCharacterStatus()->getMaxHp();
+		drawHpBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 2 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 2 + applyEx(15, m_exY), hp, dispHp, maxHp);
+	}
 }

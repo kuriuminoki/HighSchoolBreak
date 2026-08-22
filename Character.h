@@ -83,6 +83,8 @@ public:
 */
 class Character {
 private:
+	static const int DISP_HP_COUNT = 120;
+
 	CharacterProfile* m_characterProfile;
 	CharacterStatus* m_characterStatus;
 	AttackInfo* m_attackInfo;
@@ -91,6 +93,7 @@ private:
 	int m_x;
 	int m_y;
 	GROUP_KIND m_groupKind;
+	int m_dispHpCnt; // HPが増減したときに一定時間HPバーを表示する際の時間計測
 
 public:
 	Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind);
@@ -105,6 +108,7 @@ public:
 	inline int getDispX() const { return m_dispX; }
 	inline int getDispY() const { return m_dispY; }
 	inline GROUP_KIND getGroupKind() const { return m_groupKind; }
+	inline bool dispHpBar() const { return m_dispHpCnt > 0; }
 
 	// セッタ
 	inline void setDispX(int x) { m_dispX = x; }

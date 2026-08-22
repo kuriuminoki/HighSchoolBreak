@@ -43,6 +43,7 @@ void BattleFieldDrawer::draw() {
 	DrawBox(0, 0, GAME_WIDE, GAME_HEIGHT, GRAY, TRUE);
 
 	vector<const Character*> dispCharacter;
+	vector<const Character*> dispHpBarCharacter;
 
 	// 各マスの描画
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
@@ -53,6 +54,9 @@ void BattleFieldDrawer::draw() {
 			// マス上にいるキャラ
 			if (cells[y][x]->getCharacter() != nullptr) {
 				dispCharacter.push_back(cells[y][x]->getCharacter());
+				if (cells[y][x]->getCharacter()->dispHpBar()) {
+					dispHpBarCharacter.push_back(cells[y][x]->getCharacter());
+				}
 			}
 		}
 	}
@@ -72,11 +76,26 @@ void BattleFieldDrawer::draw() {
 		SetDrawBright(255, 255, 255);
 	}
 
+	for (unsigned int i = 0; i < dispHpBarCharacter.size(); i++) {
+		int handle = m_characterGraphs->getCharacterIconGraphs(dispHpBarCharacter[i]->getCharacterProfile()->getCharacterIconGraphNum());
+		int x = dispHpBarCharacter[i]->getDispX();
+		int y = dispHpBarCharacter[i]->getDispY();
+		int wide = 0, height = 0;
+		GetGraphSize(handle, &wide, &height);
+		int hp = dispHpBarCharacter[i]->getCharacterStatus()->getHp();
+		int dispHp = dispHpBarCharacter[i]->getCharacterStatus()->getDispHp();
+		int maxHp = dispHpBarCharacter[i]->getCharacterStatus()->getMaxHp();
+		drawHpBar(x - (int)(wide * 0.1 / 2) + applyEx(10, m_exX), y, x - (int)(wide * 0.1 / 2) + applyEx(80, m_exX), y + applyEx(10, m_exY), hp, dispHp, maxHp);
+	}
+
 	// キャラ情報の描画
 	const vector<CharacterInfoButton*> characterInfoButton = m_battleField_p->getCharacterInfoButton();
 	for (unsigned int i = 0; i < characterInfoButton.size(); i++) {
-		characterInfoButton[i]->draw(m_handX, m_handY, false, m_characterGraphs, m_smallFont);
+		characterInfoButton[i]->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
 	}
+
+	// マス情報の描画
+	m_battleField_p->getCellInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
 
 	// サイコロの描画
 	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);

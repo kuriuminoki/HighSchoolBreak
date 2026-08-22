@@ -75,6 +75,7 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_x = x;
 	m_y = y;
 	m_groupKind = groupKind;
+	m_dispHpCnt = 0;
 }
 
 
@@ -86,6 +87,9 @@ Character::~Character() {
 
 
 void Character::damage(int damageValue) {
+	if (damageValue != 0) {
+		m_dispHpCnt = DISP_HP_COUNT;
+	}
 	m_characterStatus->setHp(min(m_characterStatus->getMaxHp(), max(0, m_characterStatus->getHp() - damageValue)));
 }
 
@@ -96,5 +100,8 @@ void Character::updateDispHp() {
 	}
 	else if (m_characterStatus->getDispHp() < m_characterStatus->getHp()) {
 		m_characterStatus->setDispHp(m_characterStatus->getDispHp() + 1);
+	}
+	else {
+		m_dispHpCnt--;
 	}
 }

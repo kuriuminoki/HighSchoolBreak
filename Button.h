@@ -39,6 +39,7 @@ public:
 
 #include <string>
 
+class Cell;
 class Character;
 class CharacterGraphs;
 
@@ -72,7 +73,25 @@ public:
 	// セッタ
 	inline void setCharacter(const Character* character_p) { m_character_p = character_p; }
 
-	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const;
+	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
+};
+
+
+/*
+* マス情報
+*/
+class CellInfoButton : public Button
+{
+private:
+	const Cell* m_cell_p;
+
+public:
+	CellInfoButton(int x1, int y1, int x2, int y2, const Cell* cell_p);
+
+	// セッタ
+	inline void setCell(const Cell* cell_p) { m_cell_p = cell_p; }
+
+	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
 };
 
 
