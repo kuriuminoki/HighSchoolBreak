@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="BattleField.cpp" />
     <ClCompile Include="BattleFieldDrawer.cpp" />
     <ClCompile Include="Brain.cpp" />
@@ -149,9 +150,11 @@
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="Define.cpp" />
     <ClCompile Include="Dice.cpp" />
+    <ClCompile Include="Graphs.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="BattleField.h" />
     <ClInclude Include="BattleFieldDrawer.h" />
     <ClInclude Include="Brain.h" />
@@ -162,6 +165,7 @@
     <ClInclude Include="Control.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Dice.h" />
+    <ClInclude Include="Graphs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,38 +4,13 @@
 #include "Character.h"
 #include "Define.h"
 #include "Dice.h"
+#include "Graphs.h"
 #include "DxLib.h"
 
 #include <string>
 
 
 using namespace std;
-
-
-/*
-* キャラの画像
-*/
-CharacterGraphs::CharacterGraphs() {
-	string commonPath = "picture/icon/";
-	for (int i = 0; i < 5; i++) {
-		m_characterIconGraphs.push_back(-1);
-	}
-	m_characterIconGraphs[0] = LoadGraph((commonPath + "アカツキ.png").c_str());
-	m_characterIconGraphs[1] = LoadGraph((commonPath + "トウノ.png").c_str());
-	m_characterIconGraphs[2] = LoadGraph((commonPath + "タキノ.png").c_str());
-	m_characterIconGraphs[3] = LoadGraph((commonPath + "カイバラ.png").c_str());
-	m_characterIconGraphs[4] = LoadGraph((commonPath + "カンエイ.png").c_str());
-}
-
-
-CharacterGraphs::~CharacterGraphs() {
-
-}
-
-
-int CharacterGraphs::getCharacterIconGraphs(CHARACTER_NUM characterNum) const {
-	return m_characterIconGraphs[characterNum];
-}
 
 
 /*

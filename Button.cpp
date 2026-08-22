@@ -2,6 +2,7 @@
 #include "BattleFieldDrawer.h"
 #include "Character.h"
 #include "Define.h"
+#include "Graphs.h"
 #include "DxLib.h"
 
 

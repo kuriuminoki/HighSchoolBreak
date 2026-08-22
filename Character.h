@@ -7,13 +7,7 @@
 #include <vector>
 
 
-enum CHARACTER_NUM {
-	AKATSUKI,
-	TOUNO,
-	TAKINO,
-	KAIBARA,
-	KANEI
-};
+enum CHARACTER_NUM;
 
 
 enum GROUP_KIND {
@@ -117,6 +111,11 @@ public:
 	inline void setDispY(int y) { m_dispY = y; }
 	inline void setX(int x) { m_x = x; }
 	inline void setY(int y) { m_y = y; }
+
+	// HPをdamageValue分減らす。ただし0未満にはならない。最大HPを超えない。
+	void damage(int damageValue);
+	// 表示HPを更新
+	void updateDispHp();
 };
 
 

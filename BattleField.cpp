@@ -64,6 +64,8 @@ BattleField::BattleField() {
 	initController();
 
 	m_endActionButton = new TextButton("行動終了", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
+
+	m_alreadyAttack = false;
 }
 
 
@@ -109,40 +111,68 @@ bool BattleField::play() {
 
 	// キャラの操作
 	if (m_characterController->play(m_handX, m_handY, m_cells)) {
-		m_endActionButton->on();
+		if (!m_alreadyAttack) {
+			// 移動後の攻撃
+			setDamageCell(m_characters[m_activeCharacterIndex]->getY(), m_characters[m_activeCharacterIndex]->getX(), m_characters[m_activeCharacterIndex]);
+			damageCharacterEachCell();
+			m_alreadyAttack = true;
+		}
+		if (m_characters[m_activeCharacterIndex]->getGroupKind() == STUDENT) {
+			m_endActionButton->on();
+		}
 		if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
 			m_activeCharacterIndex++;
 			m_activeCharacterIndex %= (int)m_characters.size();
 			initController();
+			m_alreadyAttack = false;
 		}
 	}
 
-	// 各マスの初期化
+	// 各マスの初期化とカーソルが重なっているマスの特定
+	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-			m_cells[y][x]->setDamageValue(0);
+			m_cells[y][x]->setDamageValue(0, STUDENT);
+			if (m_cells[y][x]->overlap(m_handX, m_handY)) {
+				overlapY = y;
+				overlapX = x;
+			}
 		}
 	}
 
 	// 攻撃範囲を設定
-	if (getActiveCharacter()->getGroupKind() == STUDENT) {
-		const vector<pair<int, pair<int, int> > > targets = getActiveCharacter()->getAttackInfo()->getTargets();
-		for (unsigned int y = 0; y < m_cells.size(); y++) {
-			for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-				if (!m_cells[y][x]->overlap(m_handX, m_handY) || m_cells[y][x]->getMarkingColor() == -1) {
-					continue;
-				}
-				for (unsigned int i = 0; i < targets.size(); i++) {
-					int ty = y + targets[i].second.first;
-					int tx = x + targets[i].second.second;
-					if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
-						m_cells[ty][tx]->setDamageValue(targets[i].first);
-					}
-				}
-			}
-		}
+	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {
+		setDamageCell(overlapY, overlapX, getActiveCharacter());
+	}
+
+	// 各キャラの状態更新
+	for (unsigned int i = 0; i < m_characters.size(); i++) {
+		m_characters[i]->updateDispHp();
 	}
 
 	return false;
 }
 
+
+void BattleField::setDamageCell(int y, int x, const Character* character_p) {
+	if (y < 0 || x < 0 || y >= (int)m_cells.size() || x >= (int)m_cells[0].size()) {
+		return;
+	}
+	const vector<pair<int, pair<int, int> > > targets = character_p->getAttackInfo()->getTargets();
+	for (unsigned int i = 0; i < targets.size(); i++) {
+		int ty = y + targets[i].second.first;
+		int tx = x + targets[i].second.second;
+		if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
+			m_cells[ty][tx]->setDamageValue(targets[i].first, character_p->getGroupKind());
+		}
+	}
+}
+
+
+void BattleField::damageCharacterEachCell() {
+	for (unsigned int y = 0; y < m_cells.size(); y++) {
+		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+			m_cells[y][x]->damageCharacter();
+		}
+	}
+}

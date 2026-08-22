@@ -2,25 +2,8 @@
 #define BATTLE_FIELD_DRAWER_H_INCLUDED
 
 
-#include <vector>
-
-
 class BattleField;
-enum CHARACTER_NUM;
-
-
-/*
-* ƒLƒƒƒ‰‚Ì‰æ‘œ
-*/
-class CharacterGraphs {
-private:
-	std::vector<int> m_characterIconGraphs;
-public:
-	CharacterGraphs();
-	~CharacterGraphs();
-
-	int getCharacterIconGraphs(CHARACTER_NUM characterNum) const;
-};
+class CharacterGraphs;
 
 
 /*

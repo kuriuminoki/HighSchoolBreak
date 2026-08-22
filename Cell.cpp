@@ -3,6 +3,12 @@
 #include "Define.h"
 
 
+#include <algorithm>
+
+
+using namespace std;
+
+
 Cell::Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) :
 	Button(x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
 {
@@ -29,4 +35,12 @@ void Cell::draw(int handX, int handY, bool fill) const {
 
 bool Cell::ableMoving() {
 	return m_character_p == nullptr;
+}
+
+
+void Cell::damageCharacter() {
+	if (m_damageValue == 0 || m_character_p == nullptr || m_character_p->getGroupKind() == m_damageGroupKind) {
+		return;
+	}
+	m_character_p->damage(m_damageValue);
 }

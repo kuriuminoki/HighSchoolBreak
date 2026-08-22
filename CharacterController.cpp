@@ -239,7 +239,7 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 			if (candidate.size() == 0) {
 				return true; // 動けないため終了
 			}
-			int r = GetRand(candidate.size() - 1); // 完全ランダムで移動
+			int r = GetRand((int)candidate.size() - 1); // 完全ランダムで移動
 			searchGoalRoute(candidate[r].first, candidate[r].second, cells);
 			m_state = MOVING;
 		}

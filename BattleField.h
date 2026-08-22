@@ -26,6 +26,7 @@ private:
 
 	int m_handX, m_handY;
 	int m_activeCharacterIndex; // 今行動中のキャラ
+	bool m_alreadyAttack; // 攻撃したか
 	CharacterController* m_characterController;
 
 public:
@@ -45,7 +46,9 @@ public:
 	bool play();
 
 private:
-	void initController();
+	void initController(); // 操作キャラの種類に合わせてControllerを作成
+	void setDamageCell(int y, int x, const Character* character_p); // 座標y, xから攻撃したときの範囲を設定
+	void damageCharacterEachCell(); // 各セルについて設定されたダメージをキャラに適用
 };
 
 

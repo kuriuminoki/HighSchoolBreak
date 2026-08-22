@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "Graphs.h"
 
 
 using namespace std;
@@ -81,4 +82,19 @@ Character::~Character() {
 	delete m_characterProfile;
 	delete m_characterStatus;
 	delete m_attackInfo;
+}
+
+
+void Character::damage(int damageValue) {
+	m_characterStatus->setHp(min(m_characterStatus->getMaxHp(), max(0, m_characterStatus->getHp() - damageValue)));
+}
+
+
+void Character::updateDispHp() {
+	if (m_characterStatus->getDispHp() > m_characterStatus->getHp()) {
+		m_characterStatus->setDispHp(m_characterStatus->getDispHp() - 1);
+	}
+	else if (m_characterStatus->getDispHp() < m_characterStatus->getHp()) {
+		m_characterStatus->setDispHp(m_characterStatus->getDispHp() + 1);
+	}
 }

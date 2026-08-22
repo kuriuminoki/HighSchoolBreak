@@ -72,6 +72,12 @@
     <ClCompile Include="Brain.cpp">
       <Filter>ソース ファイル\Api</Filter>
     </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>ソース ファイル\Domain</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphs.cpp">
+      <Filter>ソース ファイル\Ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -103,6 +109,12 @@
     </ClInclude>
     <ClInclude Include="Brain.h">
       <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>ヘッダー ファイル\Domain</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphs.h">
+      <Filter>ヘッダー ファイル\Ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
