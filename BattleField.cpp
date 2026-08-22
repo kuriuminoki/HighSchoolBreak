@@ -130,7 +130,7 @@ bool BattleField::play() {
 		}
 	}
 
-	// 各マスの初期化とカーソルが重なっているマスの特定
+	// 各マスの処理
 	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
@@ -139,6 +139,7 @@ bool BattleField::play() {
 				overlapY = y;
 				overlapX = x;
 			}
+			m_cells[y][x]->playAnimation();
 		}
 	}
 

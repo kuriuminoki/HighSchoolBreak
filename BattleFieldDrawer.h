@@ -4,6 +4,7 @@
 
 class BattleField;
 class CharacterGraphs;
+class EffectGraphs;
 
 
 /*
@@ -16,6 +17,7 @@ private:
 	double m_exX, m_exY;
 	int m_handX, m_handY;
 	CharacterGraphs* m_characterGraphs;
+	EffectGraphs* m_effectGraphs;
 	int m_font;
 	int m_middleFont;
 	int m_smallFont;

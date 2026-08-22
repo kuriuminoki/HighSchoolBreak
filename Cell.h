@@ -5,6 +5,7 @@
 #include "Button.h"
 
 
+class EffectAnimation;
 class Character;
 
 enum GROUP_KIND;
@@ -26,6 +27,7 @@ private:
 	CELL_KIND m_cellKind;
 
 	Character* m_character_p; // このマスにいるキャラ いなければnull
+	EffectAnimation* m_effectAnimation;
 
 	int m_markingColor; // マーキングしていないなら-1
 
@@ -39,12 +41,15 @@ public:
 	// ゲッタ
 	inline CELL_KIND getCellKind() const { return m_cellKind; }
 	inline Character* getCharacter() const { return m_character_p; }
+	inline const EffectAnimation* getEffectAnimation() const { return m_effectAnimation; }
 	inline int getMarkingColor() const { return m_markingColor; }
 
 	// セッタ
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
 	inline void setDamageValue(int damageValue, GROUP_KIND damageGroupKind) { m_damageValue = damageValue; m_damageGroupKind = damageGroupKind; }
+
+	void playAnimation();
 
 	void draw(int handX, int handY, bool fill) const;
 

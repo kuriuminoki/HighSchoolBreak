@@ -1,6 +1,8 @@
 #include "Cell.h"
+#include "Animation.h"
 #include "Character.h"
 #include "Define.h"
+#include "Graphs.h"
 
 
 #include <algorithm>
@@ -15,8 +17,21 @@ Cell::Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, i
 	m_cellKind = cellKind;
 
 	m_character_p = nullptr;
+	m_effectAnimation = nullptr;
 	m_markingColor = -1;
 	m_damageValue = 0;
+}
+
+
+void Cell::playAnimation() {
+	if (m_effectAnimation == nullptr) {
+		return;
+	}
+	m_effectAnimation->count();
+	if (m_effectAnimation->isEndAnimation()) {
+		delete m_effectAnimation;
+		m_effectAnimation = nullptr;
+	}
 }
 
 
@@ -43,4 +58,8 @@ void Cell::damageCharacter() {
 		return;
 	}
 	m_character_p->damage(m_damageValue);
+	if (m_effectAnimation != nullptr) {
+		delete m_effectAnimation;
+	}
+	m_effectAnimation = new EffectAnimation(ATARI, (m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, 6);
 }

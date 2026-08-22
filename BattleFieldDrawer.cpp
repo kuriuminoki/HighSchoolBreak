@@ -1,5 +1,6 @@
 #include "BattleFieldDrawer.h"
 #include "BattleField.h"
+#include "Animation.h"
 #include "Cell.h"
 #include "Character.h"
 #include "Define.h"
@@ -20,6 +21,7 @@ BattleFieldDrawer::BattleFieldDrawer(BattleField* battleField_p) {
 	m_battleField_p = battleField_p;
 	getGameEx(m_exX, m_exY);
 	m_characterGraphs = new CharacterGraphs();
+	m_effectGraphs = new EffectGraphs();
 	m_font = CreateFontToHandle(nullptr, applyEx(100, m_exX), 50);
 	m_middleFont = CreateFontToHandle(nullptr, applyEx(50, m_exX), 10);
 	m_smallFont = CreateFontToHandle(nullptr, applyEx(20, m_exX), 7);
@@ -30,6 +32,7 @@ BattleFieldDrawer::BattleFieldDrawer(BattleField* battleField_p) {
 
 BattleFieldDrawer::~BattleFieldDrawer() {
 	delete m_characterGraphs;
+	delete m_effectGraphs;
 	DeleteFontToHandle(m_font);
 	DeleteFontToHandle(m_middleFont);
 	DeleteFontToHandle(m_smallFont);
@@ -44,6 +47,7 @@ void BattleFieldDrawer::draw() {
 
 	vector<const Character*> dispCharacter;
 	vector<const Character*> dispHpBarCharacter;
+	vector<const EffectAnimation*> dispEffect;
 
 	// 各マスの描画
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
@@ -58,10 +62,13 @@ void BattleFieldDrawer::draw() {
 					dispHpBarCharacter.push_back(cells[y][x]->getCharacter());
 				}
 			}
+			if (cells[y][x]->getEffectAnimation() != nullptr) {
+				dispEffect.push_back(cells[y][x]->getEffectAnimation());
+			}
 		}
 	}
 
-	// 各キャラの描画
+	// マス上の各キャラの描画
 	for (unsigned int i = 0; i < dispCharacter.size(); i++) {
 		int handle = m_characterGraphs->getCharacterIconGraphs(dispCharacter[i]->getCharacterProfile()->getCharacterIconGraphNum());
 		int x = dispCharacter[i]->getDispX();
@@ -76,6 +83,12 @@ void BattleFieldDrawer::draw() {
 		SetDrawBright(255, 255, 255);
 	}
 
+	// マス上のエフェクトの描画
+	for (unsigned int i = 0; i < dispEffect.size(); i++) {
+		DrawRotaGraph(dispEffect[i]->getX(), dispEffect[i]->getY(), 0.5, 0.0, m_effectGraphs->getEffectGraphs(dispEffect[i]->getKind(), dispEffect[i]->getAnimeNum()), TRUE);
+	}
+
+	// マス上のHPバー描画
 	for (unsigned int i = 0; i < dispHpBarCharacter.size(); i++) {
 		int handle = m_characterGraphs->getCharacterIconGraphs(dispHpBarCharacter[i]->getCharacterProfile()->getCharacterIconGraphNum());
 		int x = dispHpBarCharacter[i]->getDispX();

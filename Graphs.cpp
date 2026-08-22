@@ -35,6 +35,9 @@ int CharacterGraphs::getCharacterIconGraphs(CHARACTER_NUM characterNum) const {
 }
 
 
+/*
+* エフェクト画像
+*/
 EffectGraphs::EffectGraphs() {
 	for (int i = 0; i < getEffectSize(ATARI); i++) {
 		ostringstream oss;

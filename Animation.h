@@ -28,7 +28,7 @@ public:
 	// ゲッタ
 	inline int getX() const { return m_x; }
 	inline int getY() const { return m_y; }
-	inline EFFECT_KIND getKind() const { m_effectKind; }
+	inline EFFECT_KIND getKind() const { return m_effectKind; }
 
 	// セッタ
 	inline void setX(int x) { m_x = x; }
@@ -42,6 +42,9 @@ public:
 
 	// 今何枚目か
 	int getAnimeNum() const;
+
+	// アニメが終わったか
+	bool isEndAnimation() const;
 };
 
 

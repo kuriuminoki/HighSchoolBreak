@@ -13,6 +13,7 @@ EffectAnimation::EffectAnimation(EFFECT_KIND kind, int x, int y, int frameCnt) {
 	m_x = x;
 	m_y = y;
 	m_frameCnt = frameCnt;
+	m_cnt = 0;
 }
 
 
@@ -31,4 +32,10 @@ void EffectAnimation::count() {
 // ¡‰½–‡–Ú‚©
 int EffectAnimation::getAnimeNum() const { 
 	return m_cnt / m_frameCnt;
+}
+
+
+// ƒAƒjƒ‚ªI‚í‚Á‚½‚©
+bool EffectAnimation::isEndAnimation() const {
+	return getAnimeNum() >= EffectGraphs::getEffectSize(m_effectKind);
 }
