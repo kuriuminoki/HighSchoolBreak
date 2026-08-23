@@ -6,6 +6,7 @@
 #include "Control.h"
 #include "Define.h"
 #include "Dice.h"
+#include "Skill.h"
 
 #include <algorithm>
 #include <queue>
@@ -18,11 +19,12 @@ using namespace std;
 * すごろくゲーム
 */
 BattleField::BattleField() {
-
-	m_columnSize = 20;
-	m_rowSize = 10;
 	double exX = 1.0, exY = 1.0;
 	getGameEx(exX, exY);
+
+	// マス
+	m_columnSize = 20;
+	m_rowSize = 10;
 	m_cells.assign(m_rowSize, vector<Cell*>(m_columnSize, nullptr));
 	const int START_X = applyEx(30, exX);
 	const int START_Y = applyEx(70, exY);
@@ -35,6 +37,7 @@ BattleField::BattleField() {
 		}
 	}
 
+	// キャラ
 	int characterSize = 6;
 	const char* lastNames[] = { "アカツキ", "トウノ", "タキノ", "モンスター", "モンスター", "モンスター" };
 	const char* firstNames[] = { "リョウヤ", "ヒナミ", "エイリ", "A", "B", "C" };
@@ -65,10 +68,11 @@ BattleField::BattleField() {
 
 	m_cellInfoButton = new CellInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(1300, exX), GAME_HEIGHT - applyEx(30, exY), nullptr);
 	m_skillInfoButton = new SkillInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(1300, exX), GAME_HEIGHT - applyEx(30, exY), nullptr);
-	
 	m_endActionButton = new TextButton("行動終了", applyEx(1350, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1550, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 
 	m_alreadyAttack = false;
+	m_hangingSkill_p = nullptr;
+	m_hangingCharacterWithSkill_p = nullptr;
 }
 
 
@@ -137,10 +141,21 @@ bool BattleField::play() {
 	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+			m_cells[y][x]->nextTurn();
 			m_cells[y][x]->setDamageValue(0, STUDENT);
 			if (m_cells[y][x]->overlap(m_handX, m_handY)) {
 				overlapY = y;
 				overlapX = x;
+				// スキルを設置する
+				if (m_hangingSkill_p != nullptr && leftClick() == 1 && m_cells[y][x]->ableSetSkill()) {
+					for (unsigned int i = 0; i < m_characters.size(); i++) {
+						if (m_characters[i] == m_hangingCharacterWithSkill_p) {
+							m_characters[i]->addSkillPoint(-m_hangingSkill_p->getNeedSkillPoint());
+						}
+					}
+					m_cells[y][x]->setSkill(m_hangingSkill_p);
+					m_hangingSkill_p = nullptr;
+				}
 			}
 			m_cells[y][x]->playAnimation();
 		}
@@ -156,11 +171,29 @@ bool BattleField::play() {
 
 	// カーソルが重なっているスキルの情報を表示する
 	Skill* overlapSkill = nullptr;
+	const Character* overlapCharacter = nullptr;
 	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
 		overlapSkill = m_characterInfoButton[i]->getOverlapSkill(m_handX, m_handY);
+		overlapCharacter = m_characterInfoButton[i]->getCharacter();
 		if (overlapSkill != nullptr) { break; }
 	}
-	m_skillInfoButton->setSkill(overlapSkill);
+	m_skillInfoButton->setSkill(overlapSkill, overlapCharacter);
+	// スキルを手に掴む
+	if (overlapSkill != nullptr && leftClick() == 1 && overlapSkill->getNeedSkillPoint() < overlapCharacter->getCharacterStatus()->getSkillPoint()) {
+		if (m_hangingSkill_p == overlapSkill) {
+			m_hangingSkill_p = nullptr;
+		}
+		else {
+			m_hangingSkill_p = overlapSkill;
+			m_hangingCharacterWithSkill_p = overlapCharacter;
+		}
+	}
+	else if (m_hangingSkill_p != nullptr && leftClick() == 1) {
+		m_hangingSkill_p = nullptr;
+	}
+	if (m_hangingSkill_p != nullptr && overlapSkill == nullptr) {
+		m_skillInfoButton->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
+	}
 
 	// 攻撃範囲を設定
 	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {
@@ -170,6 +203,15 @@ bool BattleField::play() {
 	// 各キャラの状態更新
 	for (unsigned int i = 0; i < m_characters.size(); i++) {
 		m_characters[i]->updateDispHp();
+		if (overlapCharacter == m_characters[i] && overlapSkill != nullptr) {
+			m_characters[i]->setNeedSkillPoint(overlapSkill->getNeedSkillPoint());
+		}
+		else if (m_hangingCharacterWithSkill_p == m_characters[i] && m_hangingSkill_p != nullptr) {
+			m_characters[i]->setNeedSkillPoint(m_hangingSkill_p->getNeedSkillPoint());
+		}
+		else {
+			m_characters[i]->setNeedSkillPoint(0);
+		}
 	}
 
 	return false;

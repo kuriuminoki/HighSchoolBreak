@@ -6,6 +6,7 @@
 #include "Define.h"
 #include "Dice.h"
 #include "Graphs.h"
+#include "Skill.h"
 #include "DxLib.h"
 
 #include <string>
@@ -54,7 +55,7 @@ void BattleFieldDrawer::draw() {
 	for (unsigned int y = 0; y < cells.size(); y++) {
 		for (unsigned int x = 0; x < cells[y].size(); x++) {
 			// マスの描画
-			cells[y][x]->draw(m_handX, m_handY, true);
+			cells[y][x]->draw(m_handX, m_handY, true, m_characterGraphs);
 			// マス上にいるキャラ
 			if (cells[y][x]->getCharacter() != nullptr) {
 				dispCharacter.push_back(cells[y][x]->getCharacter());
@@ -118,4 +119,8 @@ void BattleFieldDrawer::draw() {
 
 	// ボタンの描画
 	m_battleField_p->getEndActionButton()->draw(m_handX, m_handY, true, m_middleFont, BLACK);
+
+	if (m_battleField_p->getHangingSkill() != nullptr) {
+		DrawRotaGraph(m_handX, m_handY, 0.5 * m_exX, 0.0, m_characterGraphs->getSkillIconGraphs(m_battleField_p->getHangingSkill()->getSkillCategory()), TRUE);
+	}
 }

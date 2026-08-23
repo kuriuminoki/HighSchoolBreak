@@ -90,6 +90,9 @@ public:
 	CharacterInfoButton(int x1, int y1, int x2, int y2, const Character* character_p);
 	~CharacterInfoButton();
 
+	// ゲッタ
+	inline const Character* getCharacter() const { return m_character_p; }
+
 	// セッタ
 	inline void setCharacter(const Character* character_p) { m_character_p = character_p; }
 
@@ -124,12 +127,13 @@ class SkillInfoButton : public Button
 {
 private:
 	const Skill* m_skill_p;
+	const Character* m_character_p;
 
 public:
 	SkillInfoButton(int x1, int y1, int x2, int y2, const Skill* skill_p);
 
 	// セッタ
-	inline void setSkill(const Skill* skill_p) { m_skill_p = skill_p; }
+	inline void setSkill(const Skill* skill_p, const Character* character_p) { m_skill_p = skill_p; m_character_p = character_p; }
 
 	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
 };

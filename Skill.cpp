@@ -16,7 +16,6 @@ using namespace std;
 Skill::Skill() {
 	m_skillName = "ÉXÉLÉãñºñ¢ê›íË";
 	m_skillCategory = ATTACK;
-	m_turn = 0;
 	m_needSkillPoint = 100;
 }
 

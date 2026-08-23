@@ -52,6 +52,8 @@ private:
 	int m_dispHp;
 	int m_hp;
 	int m_speed;
+	int m_skillPoint;
+	int m_maxSkillPoint;
 
 public:
 	CharacterStatus();
@@ -61,10 +63,13 @@ public:
 	inline int getDispHp() const { return m_dispHp; }
 	inline int getHp() const { return m_hp; }
 	inline int getSpeed() const { return m_speed; }
+	inline int getSkillPoint() const { return m_skillPoint; }
+	inline int getMaxSkillPoint() const { return m_maxSkillPoint; }
 
 	// セッタ
 	inline void setDispHp(int dispHp) { m_dispHp = dispHp; }
 	inline void setHp(int hp) { m_hp = hp; }
+	inline void setSkillPoint(int skillPoint) { m_skillPoint = skillPoint; }
 
 };
 
@@ -98,6 +103,7 @@ private:
 	int m_y;
 	GROUP_KIND m_groupKind;
 	int m_dispHpCnt; // HPが増減したときに一定時間HPバーを表示する際の時間計測
+	int m_needSkillPoint; // 今手に持っているスキルを設置すると消費されるスキルポイント量
 
 public:
 	Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind);
@@ -114,17 +120,21 @@ public:
 	inline int getDispY() const { return m_dispY; }
 	inline GROUP_KIND getGroupKind() const { return m_groupKind; }
 	inline bool dispHpBar() const { return m_dispHpCnt > 0; }
+	inline int getNeedSkillPoint() const { return m_needSkillPoint; }
 
 	// セッタ
 	inline void setDispX(int x) { m_dispX = x; }
 	inline void setDispY(int y) { m_dispY = y; }
 	inline void setX(int x) { m_x = x; }
 	inline void setY(int y) { m_y = y; }
+	inline void setNeedSkillPoint(int needSkillPoint) { m_needSkillPoint = needSkillPoint; }
 
 	// HPをdamageValue分減らす。ただし0未満にはならない。最大HPを超えない。
 	void damage(int damageValue);
 	// 表示HPを更新
 	void updateDispHp();
+	// スキルポイントの変動
+	void addSkillPoint(int addValue);
 };
 
 

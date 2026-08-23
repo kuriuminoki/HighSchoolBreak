@@ -27,7 +27,6 @@ class Skill {
 protected:
 	std::string m_skillName;
 	SKILL_CATEGORY m_skillCategory;
-	int m_turn; // 設置から何ターン経ったか
 	int m_needSkillPoint;
 
 public:
@@ -37,12 +36,10 @@ public:
 	// ゲッタ
 	inline std::string getSkillName() const { return m_skillName; }
 	inline SKILL_CATEGORY getSkillCategory() const { return m_skillCategory; }
+	inline int getNeedSkillPoint() const { return m_needSkillPoint; }
 
 	// スキルの説明文
 	virtual std::string getSkillDesc() const = 0;
-
-	// ターンを進める
-	void nextTurn() { m_turn++; }
 
 	// 発火させる。y, xはこのスキルの発動場所。
 	virtual COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells) { return COMMAND_TO_BF::NONE; }

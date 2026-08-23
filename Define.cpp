@@ -49,3 +49,19 @@ void drawHpBar(int x1, int y1, int x2, int y2, int hp, int nowHp, int maxHp) {
 	DrawBox(x1, y1, x1 + hpWide, y2, GREEN, TRUE);
 }
 
+
+// スキルポイントのバーを表示
+void drawSkillPointBar(int x1, int y1, int x2, int y2, int skillPoint, int maxSkillPoint, int needSkillPoint) {
+	DrawBox(x1, y1, x2, y2, BLACK, TRUE);
+	int wide = x2 - x1;
+	int skillWide = wide * skillPoint / maxSkillPoint;
+	DrawBox(x1, y1, x1 + skillWide, y2, ORANGE, TRUE);
+	int needSkillPointWide = wide * needSkillPoint / maxSkillPoint;
+	if (skillPoint < needSkillPoint) {
+		DrawBox(x1, y1, x1 + skillWide, y2, RED, TRUE);
+	}
+	else {
+		DrawBox(x1 + skillWide - needSkillPointWide, y1, x1 + skillWide, y2, WHITE, TRUE);
+	}
+}
+

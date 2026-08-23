@@ -13,6 +13,7 @@ class CharacterInfoButton;
 class Dice;
 class CharacterController;
 class TextButton;
+class Skill;
 class SkillInfoButton;
 
 
@@ -31,7 +32,9 @@ private:
 	int m_handX, m_handY;
 	int m_activeCharacterIndex; // 今行動中のキャラ
 	bool m_alreadyAttack; // 攻撃したか
-	CharacterController* m_characterController;
+	CharacterController* m_characterController; // キャラ移動用
+	Skill* m_hangingSkill_p; // 今設置しようとしているスキル
+	const Character* m_hangingCharacterWithSkill_p; // 今設置しようとしているスキルの所持キャラ
 
 public:
 	BattleField();
@@ -45,6 +48,7 @@ public:
 	inline const SkillInfoButton* getSkillInfoButton() const { return m_skillInfoButton; }
 	inline const Dice* getDice() const { return m_dice; }
 	inline const TextButton* getEndActionButton() const { return m_endActionButton; }
+	inline const Skill* getHangingSkill() const { return m_hangingSkill_p; }
 
 	// 特殊な処理をするゲッタ
 	inline const Character* getActiveCharacter() const { return m_characters[m_activeCharacterIndex]; }

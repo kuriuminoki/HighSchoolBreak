@@ -147,11 +147,18 @@ void CharacterInfoButton::draw(int handX, int handY, const CharacterGraphs* char
 	int dispHp = m_character_p->getCharacterStatus()->getDispHp();
 	int maxHp = m_character_p->getCharacterStatus()->getMaxHp();
 	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), hp, dispHp, maxHp);
+	int skillPoint = m_character_p->getCharacterStatus()->getSkillPoint();
+	int maxSkillPoint = m_character_p->getCharacterStatus()->getMaxSkillPoint();
+	drawSkillPointBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize * 2 + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize * 2 + applyEx(15, m_exY), skillPoint, maxSkillPoint, m_character_p->getNeedSkillPoint());
 
 	// キャラが保持するスキルの各ボタン
 	if (overlap(handX, handY)) {
 		for (unsigned int i = 0; i < m_skillButton.size(); i++) {
+			if (m_character_p->getCharacterStatus()->getSkillPoint() < m_character_p->getSkill()[i]->getNeedSkillPoint()) {
+				SetDrawBright(100, 100, 100);
+			}
 			m_skillButton[i]->draw(handX, handY, true, characterGraphs->getSkillIconGraphs(m_character_p->getSkill()[i]->getSkillCategory()));
+			SetDrawBright(255, 255, 255);
 		}
 	}
 }
@@ -185,12 +192,20 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
 	int indentSize = fontSize / 2;
 	const Character* c = m_cell_p->getCharacter();
+	const Skill* skill = m_cell_p->getSkill();
 	if (c != nullptr) {
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, m_cell_p->getCharacter()->getCharacterProfile()->getFullName().c_str(), WHITE, font);
 		int hp = c->getCharacterStatus()->getHp();
 		int dispHp = c->getCharacterStatus()->getDispHp();
 		int maxHp = c->getCharacterStatus()->getMaxHp();
 		drawHpBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 2 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 2 + applyEx(15, m_exY), hp, dispHp, maxHp);
+		int skillPoint = c->getCharacterStatus()->getSkillPoint();
+		int maxSkillPoint = c->getCharacterStatus()->getMaxSkillPoint();
+		drawSkillPointBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 3 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 3 + applyEx(15, m_exY), skillPoint, maxSkillPoint, 0);
+	}
+	else if (skill != nullptr) {
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, skill->getSkillName().c_str(), WHITE, font);
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 2, skill->getSkillDesc().c_str(), WHITE, font);
 	}
 }
 
@@ -211,5 +226,15 @@ void SkillInfoButton::draw(int handX, int handY, const CharacterGraphs* characte
 	}
 	Button::draw(handX, handY, true);
 
-	DrawStringToHandle(m_x1, m_y1, m_skill_p->getSkillDesc().c_str(), BLACK, font);
+	int fontSize = 0;
+	GetFontStateToHandle(NULL, &fontSize, NULL, font);
+	DrawStringToHandle(m_x1, m_y1, m_skill_p->getSkillName().c_str(), BLACK, font);
+	DrawStringToHandle(m_x1, m_y1 + fontSize, m_skill_p->getSkillDesc().c_str(), BLACK, font);
+	ostringstream oss;
+	oss << "消費ポイント：" << m_skill_p->getNeedSkillPoint() << " / " << m_character_p->getCharacterStatus()->getSkillPoint();
+	int color = GREEN;
+	if (m_skill_p->getNeedSkillPoint() > m_character_p->getCharacterStatus()->getSkillPoint()) {
+		color = RED;
+	}
+	DrawStringToHandle(m_x1, m_y1 + fontSize * 2, oss.str().c_str(), color, font);
 }

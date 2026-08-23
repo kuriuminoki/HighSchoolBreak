@@ -48,6 +48,8 @@ CharacterStatus::CharacterStatus() {
 	m_dispHp = m_maxHp;
 	m_hp = m_maxHp;
 	m_speed = 6;
+	m_skillPoint = 0;
+	m_maxSkillPoint = 30;
 }
 
 
@@ -77,10 +79,11 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_y = y;
 	m_groupKind = groupKind;
 	m_dispHpCnt = 0;
-	m_skill.push_back(new MoveWithoutDiceSkill(30, 1));
-	m_skill.push_back(new MoveWithoutDiceSkill(50, 3));
-	m_skill.push_back(new MoveWithoutDiceSkill(80, 6));
-	m_skill.push_back(new AdditionalAttackSkill(50, new AttackInfo()));
+	m_needSkillPoint = 0;
+	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
+	m_skill.push_back(new MoveWithoutDiceSkill(5, 3));
+	m_skill.push_back(new MoveWithoutDiceSkill(8, 6));
+	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo()));
 
 }
 
@@ -113,4 +116,11 @@ void Character::updateDispHp() {
 	else {
 		m_dispHpCnt--;
 	}
+}
+
+
+void Character::addSkillPoint(int addValue) {
+	int skillPoint = m_characterStatus->getSkillPoint() + addValue;
+	skillPoint = max(0, min(m_characterStatus->getMaxSkillPoint(), skillPoint));
+	m_characterStatus->setSkillPoint(skillPoint);
 }

@@ -3,6 +3,7 @@
 #include "Character.h"
 #include "Define.h"
 #include "Graphs.h"
+#include "Skill.h"
 
 
 #include <algorithm>
@@ -17,9 +18,11 @@ Cell::Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, i
 	m_cellKind = cellKind;
 
 	m_character_p = nullptr;
+	m_skill_p = nullptr;
 	m_effectAnimation = nullptr;
 	m_markingColor = -1;
 	m_damageValue = 0;
+	m_skillTurn = 0;
 }
 
 
@@ -35,7 +38,7 @@ void Cell::playAnimation() {
 }
 
 
-void Cell::draw(int handX, int handY, bool fill) const {
+void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs) const {
 	if (overlap(handX, handY)) {
 		DrawBox(m_x1 - m_edgeLength, m_y1 - m_edgeLength, m_x2 + m_edgeLength, m_y2 + m_edgeLength, m_edgeColor, TRUE);
 	}
@@ -45,11 +48,20 @@ void Cell::draw(int handX, int handY, bool fill) const {
 	if (m_damageValue > 0) {
 		DrawCircle((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, (m_y2 - m_y1) / 2, LIGHT_RED);
 	}
+
+	if (m_skill_p != nullptr) {
+		DrawRotaGraph((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, 0.2 * m_exX, 0.0, characterGraphs->getSkillIconGraphs(m_skill_p->getSkillCategory()), FALSE);
+	}
 }
 
 
 bool Cell::ableMoving() {
 	return m_character_p == nullptr;
+}
+
+
+bool Cell::ableSetSkill() {
+	return m_character_p == nullptr && m_skill_p == nullptr;
 }
 
 
@@ -62,4 +74,11 @@ void Cell::damageCharacter() {
 		delete m_effectAnimation;
 	}
 	m_effectAnimation = new EffectAnimation(ATARI, (m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, 6);
+}
+
+
+void Cell::nextTurn() {
+	if (m_skill_p != nullptr) {
+		m_skillTurn++;
+	}
 }

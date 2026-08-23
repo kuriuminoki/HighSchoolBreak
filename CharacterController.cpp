@@ -19,6 +19,7 @@ bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells,
 	if (character_p->getX() != gx || character_p->getY() != gy) {
 		cells[character_p->getY()][character_p->getX()]->setCharacter(nullptr);
 		cells[gy][gx]->setCharacter(character_p);
+		character_p->addSkillPoint(abs(character_p->getX() - gx) + abs(character_p->getY() - gy));
 		character_p->setY(gy);
 		character_p->setX(gx);
 	}
