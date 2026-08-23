@@ -82,7 +82,7 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_needSkillPoint = 0;
 	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
 	m_skill.push_back(new MoveWithoutDiceSkill(5, 3));
-	m_skill.push_back(new MoveWithoutDiceSkill(8, 6));
+	m_skill.push_back(new DefenceSkill(3, 10));
 	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo()));
 
 }

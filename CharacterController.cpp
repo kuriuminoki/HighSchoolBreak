@@ -12,14 +12,16 @@ using namespace std;
 
 
 // キャラの移動 (warp=trueなら瞬間移動)
-bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells, bool warp) {
+bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells, bool warp, bool ableAddSkillPoint) {
 	int goalDispX = (cells[gy][gx]->getX1() + cells[gy][gx]->getX2()) / 2;
 	int goalDispY = (cells[gy][gx]->getY1() + cells[gy][gx]->getY2()) / 2;
 
 	if (character_p->getX() != gx || character_p->getY() != gy) {
 		cells[character_p->getY()][character_p->getX()]->setCharacter(nullptr);
 		cells[gy][gx]->setCharacter(character_p);
-		character_p->addSkillPoint(abs(character_p->getX() - gx) + abs(character_p->getY() - gy));
+		if (ableAddSkillPoint) {
+			character_p->addSkillPoint(abs(character_p->getX() - gx) + abs(character_p->getY() - gy));
+		}
 		character_p->setY(gy);
 		character_p->setX(gx);
 	}
@@ -63,6 +65,7 @@ bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells,
 */
 CharacterController::CharacterController(Dice* dice_p) {
 	m_dice_p = dice_p;
+	m_ableAddSkillPoint = true;
 }
 
 
@@ -72,6 +75,15 @@ void CharacterController::initControl() {
 	}
 	m_routeMemo.clear();
 	m_track.clear();
+	m_ableAddSkillPoint = true;
+}
+
+
+void CharacterController::moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells) {
+	initControl();
+	m_dice_p->off(DARK_YELLOW);
+	searchAllTrack(distance, cells);
+	m_ableAddSkillPoint = false;
 }
 
 
@@ -157,6 +169,11 @@ void StudentController::initControl() {
 }
 
 
+bool StudentController::isWatingGoalSelect() {
+	return m_track.empty() && !m_routeMemo.empty() && !m_ableFinish;
+}
+
+
 bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*> >& cells) {
 	if (leftClick() == 1) {
 		if (m_dice_p->overlap(handX, handY)) {
@@ -182,7 +199,7 @@ bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*
 	}
 
 	if (!m_track.empty()) {
-		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false)) {
+		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
 			m_track.pop_back();
 		}
 		if (m_track.empty()) {
@@ -200,6 +217,12 @@ bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*
 	}
 
 	return false;
+}
+
+
+void StudentController::moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells) {
+	m_ableFinish = false;
+	CharacterController::moveSpecificDistance(distance, cells);
 }
 
 
@@ -225,9 +248,11 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 		m_state = PLAY_DICE;
 	}
 	else if (m_state == PLAY_DICE) {
-		if (m_dice_p->play() && m_routeMemo.empty()) {
-			// 幅優先探索で各マスへの最短ルートを検索
-			searchAllTrack(m_dice_p->getValue(), cells);
+		if (m_dice_p->play()) {
+			if (m_routeMemo.empty()) { // スキルではなく通常移動なら空のはず
+				// 幅優先探索で各マスへの最短ルートを検索
+				searchAllTrack(m_dice_p->getValue(), cells);
+			}
 			// 目標地点までの経路を設定
 			vector<pair<int, int> > candidate;
 			for (unsigned int y = 0; y < cells.size(); y++) {
@@ -247,7 +272,7 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 	}
 
 	if (m_state == MOVING) {
-		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false)) {
+		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
 			m_track.pop_back();
 		}
 		if (m_track.empty()) {
@@ -261,4 +286,11 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 	}
 
 	return false;
+}
+
+
+
+void EnemyController::moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells) {
+	m_state = PLAY_DICE;
+	CharacterController::moveSpecificDistance(distance, cells);
 }

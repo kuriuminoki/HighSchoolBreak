@@ -8,14 +8,16 @@
 
 class AttackInfo;
 class Cell;
+class CharacterController;
 
 
 enum SKILL_CATEGORY;
+enum GROUP_KIND;
 
 
 // BattleFieldクラスへの要求
 enum COMMAND_TO_BF {
-	NONE,
+	NONE_REQUEST,
 	RETRY_MOVE
 };
 
@@ -42,7 +44,10 @@ public:
 	virtual std::string getSkillDesc() const = 0;
 
 	// 発火させる。y, xはこのスキルの発動場所。
-	virtual COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells) { return COMMAND_TO_BF::NONE; }
+	virtual COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const { return COMMAND_TO_BF::NONE_REQUEST; }
+
+	// 攻撃範囲を設定する。
+	virtual void setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const {}
 };
 
 
@@ -62,7 +67,8 @@ public:
 	std::string getSkillDesc() const;
 
 	// 発火させる。y, xはこのスキルの発動場所。
-	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells);
+	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const;
+
 };
 
 
@@ -82,7 +88,32 @@ public:
 	std::string getSkillDesc() const;
 
 	// 発火させる。y, xはこのスキルの発動場所。
-	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells);
+	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const;
+
+	// 攻撃範囲を設定する。
+	void setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const;
+
+private:
+	void putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind) const;
+};
+
+
+/*
+* 踏んだ敵にダメージを与える(罠)スキル
+*/
+class DefenceSkill : public Skill
+{
+private:
+	int m_damage;
+
+public:
+	DefenceSkill(int needSkillPoint, int damage);
+
+	// スキルの説明文
+	std::string getSkillDesc() const;
+
+	// 発火させる。y, xはこのスキルの発動場所。
+	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const;
 };
 
 

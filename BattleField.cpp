@@ -58,7 +58,7 @@ BattleField::BattleField() {
 			m_characterInfoButton.push_back(new CharacterInfoButton(x1, y1, x1 + INFO_WIDE, y1 + INFO_HEIGHT, m_characters[i]));
 			infoNow++;
 		}
-		move(m_characters[i], y, x, m_cells, true);
+		move(m_characters[i], y, x, m_cells, true, false);
 	}
 
 	m_dice = new Dice(GAME_WIDE - applyEx(350, exX), GAME_HEIGHT - applyEx(330, exY), GAME_WIDE - applyEx(50, exX), GAME_HEIGHT - applyEx(30, exY), applyEx(6, exX), LIGHT_YELLOW, RED);
@@ -96,6 +96,24 @@ BattleField::~BattleField() {
 }
 
 
+void BattleField::nextTurn() {
+	m_activeCharacterIndex++;
+
+	// キャラが一巡したとき
+	if (m_activeCharacterIndex == (int)m_characters.size()) {
+		m_activeCharacterIndex = 0;
+		for (unsigned int y = 0; y < m_cells.size(); y++) {
+			for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+				m_cells[y][x]->nextTurn();
+			}
+		}
+	}
+
+	initController();
+	m_alreadyAttack = false;
+}
+
+
 void BattleField::initController() {
 	if (m_characterController != nullptr) {
 		delete m_characterController;
@@ -126,14 +144,24 @@ bool BattleField::play() {
 			damageCharacterEachCell();
 			m_alreadyAttack = true;
 		}
-		if (m_characters[m_activeCharacterIndex]->getGroupKind() == STUDENT) {
-			m_endActionButton->on();
+		if (m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->getSkill() != nullptr) {
+			// スキルの発火
+			const Skill* skill = m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->getSkill();
+			COMMAND_TO_BF com = skill->fire(m_characters[m_activeCharacterIndex]->getY(), m_characters[m_activeCharacterIndex]->getX(), m_cells, m_characterController);
+			switch (com) {
+			case RETRY_MOVE:
+				m_alreadyAttack = false;
+				break;
+			}
+			m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->setSkill(nullptr);
 		}
-		if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
-			m_activeCharacterIndex++;
-			m_activeCharacterIndex %= (int)m_characters.size();
-			initController();
-			m_alreadyAttack = false;
+		else {
+			if (m_characters[m_activeCharacterIndex]->getGroupKind() == STUDENT) {
+				m_endActionButton->on();
+			}
+			if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
+				nextTurn();
+			}
 		}
 	}
 
@@ -141,7 +169,6 @@ bool BattleField::play() {
 	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-			m_cells[y][x]->nextTurn();
 			m_cells[y][x]->setDamageValue(0, STUDENT);
 			if (m_cells[y][x]->overlap(m_handX, m_handY)) {
 				overlapY = y;
@@ -179,7 +206,7 @@ bool BattleField::play() {
 	}
 	m_skillInfoButton->setSkill(overlapSkill, overlapCharacter);
 	// スキルを手に掴む
-	if (overlapSkill != nullptr && leftClick() == 1 && overlapSkill->getNeedSkillPoint() < overlapCharacter->getCharacterStatus()->getSkillPoint()) {
+	if (overlapSkill != nullptr && leftClick() == 1 && overlapSkill->getNeedSkillPoint() <= overlapCharacter->getCharacterStatus()->getSkillPoint()) {
 		if (m_hangingSkill_p == overlapSkill) {
 			m_hangingSkill_p = nullptr;
 		}
@@ -191,13 +218,22 @@ bool BattleField::play() {
 	else if (m_hangingSkill_p != nullptr && leftClick() == 1) {
 		m_hangingSkill_p = nullptr;
 	}
+	if (m_characterController->isWatingGoalSelect()) {
+		m_hangingSkill_p = nullptr;
+	}
 	if (m_hangingSkill_p != nullptr && overlapSkill == nullptr) {
 		m_skillInfoButton->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
 	}
 
-	// 攻撃範囲を設定
+	// 攻撃範囲のガイドを設定
 	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {
 		setDamageCell(overlapY, overlapX, getActiveCharacter());
+	}
+	if (overlapY >= 0 && overlapX >= 0 && m_hangingSkill_p != nullptr) {
+		m_hangingSkill_p->setDamageCell(overlapY, overlapX, m_cells);
+	}
+	else if (overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getSkill() != nullptr) {
+		m_cells[overlapY][overlapX]->getSkill()->setDamageCell(overlapY, overlapX, m_cells);
 	}
 
 	// 各キャラの状態更新
@@ -227,7 +263,7 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
-			m_cells[ty][tx]->setDamageValue(targets[i].first, character_p->getGroupKind());
+			m_cells[ty][tx]->addDamageValue(targets[i].first, character_p->getGroupKind());
 		}
 	}
 }

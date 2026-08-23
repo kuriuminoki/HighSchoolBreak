@@ -206,6 +206,9 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 	else if (skill != nullptr) {
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, skill->getSkillName().c_str(), WHITE, font);
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 2, skill->getSkillDesc().c_str(), WHITE, font);
+		ostringstream oss;
+		oss << m_cell_p->getSkillTurn() << "ƒ^[ƒ“Œo‰ß";
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 3, oss.str().c_str(), WHITE, font);
 	}
 }
 

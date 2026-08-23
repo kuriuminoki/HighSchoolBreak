@@ -56,6 +56,7 @@ public:
 	bool play();
 
 private:
+	void nextTurn();
 	void initController(); // 操作キャラの種類に合わせてControllerを作成
 	void setDamageCell(int y, int x, const Character* character_p); // 座標y, xから攻撃したときの範囲を設定
 	void damageCharacterEachCell(); // 各セルについて設定されたダメージをキャラに適用

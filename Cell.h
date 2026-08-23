@@ -47,12 +47,14 @@ public:
 	inline const Skill* getSkill() const { return m_skill_p; }
 	inline const EffectAnimation* getEffectAnimation() const { return m_effectAnimation; }
 	inline int getMarkingColor() const { return m_markingColor; }
+	inline int getSkillTurn() const { return m_skillTurn; }
 
 	// ƒZƒbƒ^
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
 	inline void setSkill(const Skill* skill_p) { m_skill_p = skill_p; m_skillTurn = 0; }
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
-	inline void setDamageValue(int damageValue, GROUP_KIND damageGroupKind) { m_damageValue = damageValue; m_damageGroupKind = damageGroupKind; }
+	void setDamageValue(int damageValue, GROUP_KIND damageGroupKind);
+	void addDamageValue(int damageValue, GROUP_KIND damageGroupKind);
 
 	void playAnimation();
 

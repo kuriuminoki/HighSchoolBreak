@@ -18,7 +18,7 @@ enum DIRECTION {
 
 
 // キャラの移動 (warp=trueなら瞬間移動)
-bool move(Character* character_p, int gy, int gx, std::vector<std::vector<Cell*> >& cells, bool warp);
+bool move(Character* character_p, int gy, int gx, std::vector<std::vector<Cell*> >& cells, bool warp, bool ableAddSkillPoint);
 
 
 /*
@@ -32,6 +32,8 @@ protected:
 	std::vector<std::vector<DIRECTION> > m_routeMemo; // 各マスへ移動する際、どの方向に移動した結果到着するか
 	std::vector<std::pair<int, int> > m_track; // キャラの移動予定マス 先頭がゴール地点、末尾がスタート地点
 
+	bool m_ableAddSkillPoint; // スキルで追加移動したときはスキルポイントの追加なし
+
 public:
 	CharacterController(Dice* dice_p);
 
@@ -40,6 +42,10 @@ public:
 	virtual void initControl();
 
 	virtual bool play(int handX, int handY, std::vector<std::vector<Cell*> >& cells) = 0;
+
+	virtual void moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells); // スキルでＸマス以内の移動をするとき用
+
+	virtual bool isWatingGoalSelect() { return false; }
 
 protected:
 	void searchAllTrack(int maxDistance, std::vector<std::vector<Cell*> >& cells);
@@ -61,6 +67,10 @@ public:
 	void initControl();
 
 	bool play(int handX, int handY, std::vector<std::vector<Cell*> >& cells);
+
+	void moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells);
+
+	bool isWatingGoalSelect();
 };
 
 
@@ -83,6 +93,10 @@ public:
 	void initControl();
 
 	bool play(int handX, int handY, std::vector<std::vector<Cell*> >& cells);
+
+	void moveSpecificDistance(int distance, std::vector<std::vector<Cell*> >& cells);
+
+	bool isWatingGoalSelect() { return false; }
 };
 
 

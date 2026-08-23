@@ -26,6 +26,21 @@ Cell::Cell(CELL_KIND cellKind, int x1, int y1, int x2, int y2, int edgeLength, i
 }
 
 
+void Cell::setDamageValue(int damageValue, GROUP_KIND damageGroupKind) {
+	m_damageValue = damageValue;
+	m_damageGroupKind = damageGroupKind;
+}
+
+
+void Cell::addDamageValue(int damageValue, GROUP_KIND damageGroupKind) {
+	if (m_damageGroupKind != damageGroupKind) {
+		m_damageValue = 0;
+	}
+	m_damageValue += damageValue;
+	m_damageGroupKind = damageGroupKind;
+}
+
+
 void Cell::playAnimation() {
 	if (m_effectAnimation == nullptr) {
 		return;
