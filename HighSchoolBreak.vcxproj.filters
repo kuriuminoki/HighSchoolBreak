@@ -78,6 +78,9 @@
     <ClCompile Include="Graphs.cpp">
       <Filter>ソース ファイル\Ui</Filter>
     </ClCompile>
+    <ClCompile Include="Skill.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -115,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="Graphs.h">
       <Filter>ヘッダー ファイル\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

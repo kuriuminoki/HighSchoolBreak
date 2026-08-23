@@ -22,16 +22,36 @@ CharacterGraphs::CharacterGraphs() {
 	m_characterIconGraphs[2] = LoadGraph((commonPath + "タキノ.png").c_str());
 	m_characterIconGraphs[3] = LoadGraph((commonPath + "カイバラ.png").c_str());
 	m_characterIconGraphs[4] = LoadGraph((commonPath + "カンエイ.png").c_str());
+
+	commonPath = "picture/skillIcon/";
+	for (int i = 0; i < 5; i++) {
+		m_skillIconGraphs.push_back(-1);
+	}
+	m_skillIconGraphs[0] = LoadGraph((commonPath + "attack.png").c_str());
+	m_skillIconGraphs[1] = LoadGraph((commonPath + "defence.png").c_str());
+	m_skillIconGraphs[2] = LoadGraph((commonPath + "cure.png").c_str());
+	m_skillIconGraphs[3] = LoadGraph((commonPath + "move.png").c_str());
+	m_skillIconGraphs[4] = LoadGraph((commonPath + "other.png").c_str());
 }
 
 
 CharacterGraphs::~CharacterGraphs() {
-
+	for (unsigned int i = 0; i < m_characterIconGraphs.size(); i++) {
+		DeleteGraph(m_characterIconGraphs[i]);
+	}
+	for (unsigned int i = 0; i < m_skillIconGraphs.size(); i++) {
+		DeleteGraph(m_skillIconGraphs[i]);
+	}
 }
 
 
 int CharacterGraphs::getCharacterIconGraphs(CHARACTER_NUM characterNum) const {
 	return m_characterIconGraphs[characterNum];
+}
+
+
+int CharacterGraphs::getSkillIconGraphs(SKILL_CATEGORY skillCategory) const {
+	return m_skillIconGraphs[skillCategory];
 }
 
 

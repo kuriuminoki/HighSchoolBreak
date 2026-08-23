@@ -4,6 +4,7 @@
 #include "Character.h"
 #include "Define.h"
 #include "Graphs.h"
+#include "Skill.h"
 #include "DxLib.h"
 
 
@@ -59,11 +60,31 @@ TextButton::TextButton(string dispText, int x1, int y1, int x2, int y2, int edge
 	m_dispText = dispText;
 }
 
+
 void TextButton::draw(int handX, int handY, bool fill, int font, int textColor) const {
 	Button::draw(handX, handY, fill);
 	int fontSize = 0;
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
 	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * ((int)m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
+}
+
+
+/*
+* 画像付きのボタン
+*/
+GraphButton::GraphButton(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor) :
+	Button(x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
+{
+
+}
+
+
+void GraphButton::draw(int handX, int handY, bool fill, int graphHandle) const {
+	Button::draw(handX, handY, fill);
+	int wide = 0, height = 0;
+	GetGraphSize(graphHandle, &wide, &height);
+	double ex = min((double)(m_x2 - m_x1) / wide, (double)(m_y2 - m_y1) / height);
+	DrawRotaGraph((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, ex, 0.0, graphHandle, TRUE);
 }
 
 
@@ -74,7 +95,36 @@ CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const C
 	Button(x1, y1, x2, y2, 10, LIGHT_BLUE, BLUE)
 {
 	m_character_p = character_p;
+
+	double exX = 1, exY = 1;
+	getGameEx(exX, exY);
+	const int dx = applyEx(10, exX);
+	const int dy = applyEx(100, exY);
+	const int SKILL_WIDE = min((x2 - x1) / 2, (y2 - y1) / 2) - applyEx(15, exX);
+	for (unsigned int i = 0; i < m_character_p->getSkill().size(); i++) {
+		int sx1 = i % 2 == 0 ? x1 + dx : x1 + dx + SKILL_WIDE + dx;
+		int sy1 = i / 2 == 0 ? y1 + dy : y1 + dy + SKILL_WIDE + dx;
+		m_skillButton.push_back(new GraphButton(sx1, sy1, sx1 + SKILL_WIDE, sy1 + SKILL_WIDE, applyEx(3, exX), WHITE, RED));
+	}
 }
+
+
+CharacterInfoButton::~CharacterInfoButton() {
+	for (unsigned int i = 0; i < m_skillButton.size(); i++) {
+		delete m_skillButton[i];
+	}
+}
+
+
+Skill* CharacterInfoButton::getOverlapSkill(int handX, int handY) const {
+	for (unsigned int i = 0; i < m_skillButton.size(); i++) {
+		if (m_skillButton[i]->overlap(handX, handY)) {
+			return m_character_p->getSkill()[i];
+		}
+	}
+	return nullptr;
+}
+
 
 void CharacterInfoButton::draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const {
 	if (m_character_p == nullptr) {
@@ -97,6 +147,13 @@ void CharacterInfoButton::draw(int handX, int handY, const CharacterGraphs* char
 	int dispHp = m_character_p->getCharacterStatus()->getDispHp();
 	int maxHp = m_character_p->getCharacterStatus()->getMaxHp();
 	drawHpBar(m_x1 + applyEx(5, m_exX), m_y1 + fontSize + applyEx(5, m_exY), m_x1 + applyEx(200, m_exX), m_y1 + fontSize + applyEx(15, m_exY), hp, dispHp, maxHp);
+
+	// キャラが保持するスキルの各ボタン
+	if (overlap(handX, handY)) {
+		for (unsigned int i = 0; i < m_skillButton.size(); i++) {
+			m_skillButton[i]->draw(handX, handY, true, characterGraphs->getSkillIconGraphs(m_character_p->getSkill()[i]->getSkillCategory()));
+		}
+	}
 }
 
 
@@ -108,6 +165,7 @@ CellInfoButton::CellInfoButton(int x1, int y1, int x2, int y2, const Cell* cell_
 {
 	m_cell_p = cell_p;
 }
+
 
 void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const {
 	if (m_cell_p == nullptr) {
@@ -134,4 +192,24 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 		int maxHp = c->getCharacterStatus()->getMaxHp();
 		drawHpBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 2 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 2 + applyEx(15, m_exY), hp, dispHp, maxHp);
 	}
+}
+
+
+/*
+* スキル情報の領域
+*/
+SkillInfoButton::SkillInfoButton(int x1, int y1, int x2, int y2, const Skill* skill_p) :
+	Button(x1, y1, x2, y2, 10, GRAY2, RED)
+{
+	m_skill_p = skill_p;
+}
+
+
+void SkillInfoButton::draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const {
+	if (m_skill_p == nullptr) {
+		return;
+	}
+	Button::draw(handX, handY, true);
+
+	DrawStringToHandle(m_x1, m_y1, m_skill_p->getSkillDesc().c_str(), BLACK, font);
 }

@@ -63,8 +63,10 @@ BattleField::BattleField() {
 	m_activeCharacterIndex = 0;
 	initController();
 
-	m_cellInfoButton = new CellInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(900, exX) + INFO_WIDE, GAME_HEIGHT - applyEx(30, exY), nullptr);
-	m_endActionButton = new TextButton("行動終了", applyEx(1300, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1500, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
+	m_cellInfoButton = new CellInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(1300, exX), GAME_HEIGHT - applyEx(30, exY), nullptr);
+	m_skillInfoButton = new SkillInfoButton(applyEx(900, exX), GAME_HEIGHT - INFO_HEIGHT - applyEx(30, exY), applyEx(1300, exX), GAME_HEIGHT - applyEx(30, exY), nullptr);
+	
+	m_endActionButton = new TextButton("行動終了", applyEx(1350, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1550, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 
 	m_alreadyAttack = false;
 }
@@ -85,6 +87,7 @@ BattleField::~BattleField() {
 	delete m_dice;
 	delete m_characterController;
 	delete m_cellInfoButton;
+	delete m_skillInfoButton;
 	delete m_endActionButton;
 }
 
@@ -150,6 +153,14 @@ bool BattleField::play() {
 	else {
 		m_cellInfoButton->setCell(nullptr);
 	}
+
+	// カーソルが重なっているスキルの情報を表示する
+	Skill* overlapSkill = nullptr;
+	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
+		overlapSkill = m_characterInfoButton[i]->getOverlapSkill(m_handX, m_handY);
+		if (overlapSkill != nullptr) { break; }
+	}
+	m_skillInfoButton->setSkill(overlapSkill);
 
 	// 攻撃範囲を設定
 	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {

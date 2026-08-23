@@ -12,7 +12,7 @@ enum GROUP_KIND;
 
 
 enum CELL_KIND {
-	NONE,	// í ÇÍÇ»Ç¢
+	BLOCK, // í ÇÍÇ»Ç¢
 	NORMAL,	// âΩÇ‡Ç»Ç¢ïÅí ÇÃÉ}ÉX
 };
 

@@ -2,6 +2,9 @@
 #define BUTTON_H_INCLUDED
 
 
+#include <vector>
+
+
 /*
 * ボタンの基底クラス
 */
@@ -17,6 +20,7 @@ protected:
 
 public:
 	Button(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
+	virtual ~Button() {}
 
 	// ゲッタ
 	inline int getX1() const { return m_x1; }
@@ -42,6 +46,7 @@ public:
 class Cell;
 class Character;
 class CharacterGraphs;
+class Skill;
 
 
 /*
@@ -60,6 +65,18 @@ public:
 
 
 /*
+* 画像付きのボタン
+*/
+class GraphButton : public Button
+{
+public:
+	GraphButton(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
+
+	void draw(int handX, int handY, bool fill, int graphHandle) const;
+};
+
+
+/*
 * キャラ情報
 */
 class CharacterInfoButton : public Button
@@ -67,11 +84,16 @@ class CharacterInfoButton : public Button
 private:
 	const Character* m_character_p;
 
+	std::vector<GraphButton*> m_skillButton;
+
 public:
 	CharacterInfoButton(int x1, int y1, int x2, int y2, const Character* character_p);
+	~CharacterInfoButton();
 
 	// セッタ
 	inline void setCharacter(const Character* character_p) { m_character_p = character_p; }
+
+	Skill* getOverlapSkill(int handX, int handY) const;
 
 	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
 };
@@ -90,6 +112,24 @@ public:
 
 	// セッタ
 	inline void setCell(const Cell* cell_p) { m_cell_p = cell_p; }
+
+	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
+};
+
+
+/*
+* スキル情報
+*/
+class SkillInfoButton : public Button
+{
+private:
+	const Skill* m_skill_p;
+
+public:
+	SkillInfoButton(int x1, int y1, int x2, int y2, const Skill* skill_p);
+
+	// セッタ
+	inline void setSkill(const Skill* skill_p) { m_skill_p = skill_p; }
 
 	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
 };

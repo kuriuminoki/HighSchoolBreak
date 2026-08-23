@@ -17,6 +17,9 @@ enum GROUP_KIND {
 };
 
 
+class Skill;
+
+
 /*
 * プロフィール
 */
@@ -83,11 +86,12 @@ public:
 */
 class Character {
 private:
-	static const int DISP_HP_COUNT = 120;
+	static const int DISP_HP_COUNT = 120; // HPバーの表示時間
 
 	CharacterProfile* m_characterProfile;
 	CharacterStatus* m_characterStatus;
 	AttackInfo* m_attackInfo;
+	std::vector<Skill*> m_skill;
 	int m_dispX;
 	int m_dispY;
 	int m_x;
@@ -103,6 +107,7 @@ public:
 	inline const CharacterProfile* getCharacterProfile() const { return m_characterProfile; }
 	inline const CharacterStatus* getCharacterStatus() const { return m_characterStatus; }
 	inline const AttackInfo* getAttackInfo() const { return m_attackInfo; }
+	inline std::vector<Skill*> getSkill() const { return m_skill; }
 	inline int getX() const { return m_x; }
 	inline int getY() const { return m_y; }
 	inline int getDispX() const { return m_dispX; }

@@ -17,17 +17,29 @@ enum CHARACTER_NUM {
 };
 
 
+// アイコン画像の使い分け用
+enum SKILL_CATEGORY {
+	ATTACK,
+	DEFENCE,
+	CURE,
+	MOVE,
+	OTHER
+};
+
+
 /*
 * キャラの画像
 */
 class CharacterGraphs {
 private:
 	std::vector<int> m_characterIconGraphs;
+	std::vector<int> m_skillIconGraphs;
 public:
 	CharacterGraphs();
 	~CharacterGraphs();
 
 	int getCharacterIconGraphs(CHARACTER_NUM characterNum) const;
+	int getSkillIconGraphs(SKILL_CATEGORY skillCategory) const;
 };
 
 

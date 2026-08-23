@@ -1,5 +1,6 @@
 #include "Character.h"
 #include "Graphs.h"
+#include "Skill.h"
 
 
 using namespace std;
@@ -76,6 +77,11 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_y = y;
 	m_groupKind = groupKind;
 	m_dispHpCnt = 0;
+	m_skill.push_back(new MoveWithoutDiceSkill(30, 1));
+	m_skill.push_back(new MoveWithoutDiceSkill(50, 3));
+	m_skill.push_back(new MoveWithoutDiceSkill(80, 6));
+	m_skill.push_back(new AdditionalAttackSkill(50, new AttackInfo()));
+
 }
 
 
@@ -83,6 +89,9 @@ Character::~Character() {
 	delete m_characterProfile;
 	delete m_characterStatus;
 	delete m_attackInfo;
+	for (unsigned int i = 0; i < m_skill.size(); i++) {
+		delete m_skill[i];
+	}
 }
 
 

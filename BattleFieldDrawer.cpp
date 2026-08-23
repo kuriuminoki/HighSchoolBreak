@@ -110,6 +110,9 @@ void BattleFieldDrawer::draw() {
 	// マス情報の描画
 	m_battleField_p->getCellInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
 
+	// スキル情報の描画
+	m_battleField_p->getSkillInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
+
 	// サイコロの描画
 	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);
 
