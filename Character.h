@@ -80,7 +80,7 @@ private:
 	std::vector<std::pair<int, std::pair<int, int> > > m_targets; // (UŒ‚—Í, (dy, dx))
 
 public:
-	AttackInfo();
+	AttackInfo(int n);
 
 	// ƒQƒbƒ^
 	inline const std::vector<std::pair<int, std::pair<int, int> > >& getTargets() const { return m_targets; }

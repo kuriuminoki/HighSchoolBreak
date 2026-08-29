@@ -74,11 +74,21 @@ string AdditionalAttackSkill::getSkillDesc() const {
 	}
 
 	ostringstream oss;
-	if (maxDamage == minDamage) {
-		oss << maxDamage << "ダメージの攻撃を行う。";
+	if (minDamage > 0) {
+		if (maxDamage == minDamage) {
+			oss << maxDamage << "ダメージの攻撃を行う。";
+		}
+		else {
+			oss << minDamage << "～" << maxDamage << "ダメージの攻撃を行う。";
+		}
 	}
 	else {
-		oss << minDamage << "～" << maxDamage << "ダメージの攻撃を行う。";
+		if (maxDamage == minDamage) {
+			oss << "HPを" << -maxDamage << "回復する。";
+		}
+		else {
+			oss << "HPを" << -maxDamage << "～" << -minDamage << "回復する。";
+		}
 	}
 	
 	return oss.str();
@@ -87,23 +97,26 @@ string AdditionalAttackSkill::getSkillDesc() const {
 
 // 発火させる。y, xはこのスキルの発動場所。
 COMMAND_TO_BF AdditionalAttackSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
-	putAttackInfoToCells(y, x, cells, cells[y][x]->getCharacter()->getGroupKind());
+	putAttackInfoToCells(y, x, cells, cells[y][x]->getCharacter()->getGroupKind(), true);
 	return NONE_REQUEST;
 }
 
 
 void AdditionalAttackSkill::setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const {
-	putAttackInfoToCells(y, x, cells, GROUP_KIND::STUDENT);
+	putAttackInfoToCells(y, x, cells, GROUP_KIND::STUDENT, false);
 }
 
 
-void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind) const {
+void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack) const {
 	const vector<pair<int, pair<int, int> > > targets = m_attackInfo->getTargets();
 	for (unsigned int i = 0; i < targets.size(); i++) {
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < cells.size() && tx >= 0 && tx < cells[0].size()) {
-			cells[ty][tx]->addDamageValue(targets[i].first, groupKind);
+			cells[ty][tx]->setDamageValue(targets[i].first, groupKind);
+			if (attack) {
+				cells[ty][tx]->damageCharacter();
+			}
 		}
 	}
 }

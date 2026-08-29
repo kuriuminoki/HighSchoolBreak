@@ -263,7 +263,7 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
-			m_cells[ty][tx]->addDamageValue(targets[i].first, character_p->getGroupKind());
+			m_cells[ty][tx]->setDamageValue(targets[i].first, character_p->getGroupKind());
 		}
 	}
 }

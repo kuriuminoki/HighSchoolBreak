@@ -266,22 +266,30 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 				return true; // “®‚¯‚È‚¢‚½‚ßI—¹
 			}
 			int r = GetRand((int)candidate.size() - 1); // Š®‘Sƒ‰ƒ“ƒ_ƒ€‚ÅˆÚ“®
+			for (unsigned int i = 0; i < candidate.size(); i++) {
+				if (cells[candidate[i].first][candidate[i].second]->getSkill() != nullptr) {
+					r = i;
+				}
+			}
 			searchGoalRoute(candidate[r].first, candidate[r].second, cells);
 			m_state = MOVING;
 		}
 	}
 
 	if (m_state == MOVING) {
-		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
-			m_track.pop_back();
-		}
 		if (m_track.empty()) {
-			for (unsigned int y = 0; y < cells.size(); y++) {
-				for (unsigned int x = 0; x < cells[y].size(); x++) {
-					cells[y][x]->setMarkingColor(-1);
-				}
-			}
 			return true;
+		}
+		else if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
+			m_track.pop_back();
+			if (m_track.empty()) {
+				for (unsigned int y = 0; y < cells.size(); y++) {
+					for (unsigned int x = 0; x < cells[y].size(); x++) {
+						cells[y][x]->setMarkingColor(-1);
+					}
+				}
+				return true;
+			}
 		}
 	}
 

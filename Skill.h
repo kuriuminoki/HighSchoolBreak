@@ -94,7 +94,7 @@ public:
 	void setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const;
 
 private:
-	void putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind) const;
+	void putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack) const;
 };
 
 

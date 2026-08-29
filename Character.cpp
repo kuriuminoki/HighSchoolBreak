@@ -56,15 +56,20 @@ CharacterStatus::CharacterStatus() {
 /*
 * çUåÇèÓïÒ
 */
-AttackInfo::AttackInfo() {
-	m_targets.push_back(make_pair(10, make_pair(-1, -1)));
-	m_targets.push_back(make_pair(10, make_pair(-1, 0)));
-	m_targets.push_back(make_pair(10, make_pair(-1, 1)));
-	m_targets.push_back(make_pair(10, make_pair(0, 1)));
-	m_targets.push_back(make_pair(10, make_pair(1, 1)));
-	m_targets.push_back(make_pair(10, make_pair(1, 0)));
-	m_targets.push_back(make_pair(10, make_pair(1, -1)));
-	m_targets.push_back(make_pair(10, make_pair(0, -1)));
+AttackInfo::AttackInfo(int n) {
+	if (n == 0) {
+		m_targets.push_back(make_pair(-10, make_pair(0, 0)));
+	}
+	else {
+		m_targets.push_back(make_pair(10, make_pair(-1, -1)));
+		m_targets.push_back(make_pair(10, make_pair(-1, 0)));
+		m_targets.push_back(make_pair(10, make_pair(-1, 1)));
+		m_targets.push_back(make_pair(10, make_pair(0, 1)));
+		m_targets.push_back(make_pair(10, make_pair(1, 1)));
+		m_targets.push_back(make_pair(10, make_pair(1, 0)));
+		m_targets.push_back(make_pair(10, make_pair(1, -1)));
+		m_targets.push_back(make_pair(10, make_pair(0, -1)));
+	}
 }
 
 
@@ -74,16 +79,16 @@ AttackInfo::AttackInfo() {
 Character::Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind) {
 	m_characterProfile = characterProfile;
 	m_characterStatus = characterStatus;
-	m_attackInfo = new AttackInfo();
+	m_attackInfo = new AttackInfo(1);
 	m_x = x;
 	m_y = y;
 	m_groupKind = groupKind;
 	m_dispHpCnt = 0;
 	m_needSkillPoint = 0;
 	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
-	m_skill.push_back(new MoveWithoutDiceSkill(5, 3));
+	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(0)));
 	m_skill.push_back(new DefenceSkill(3, 10));
-	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo()));
+	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
 
 }
 

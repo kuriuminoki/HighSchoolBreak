@@ -54,7 +54,6 @@ public:
 	inline void setSkill(const Skill* skill_p) { m_skill_p = skill_p; m_skillTurn = 0; }
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
 	void setDamageValue(int damageValue, GROUP_KIND damageGroupKind);
-	void addDamageValue(int damageValue, GROUP_KIND damageGroupKind);
 
 	void playAnimation();
 

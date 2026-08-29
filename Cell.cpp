@@ -32,15 +32,6 @@ void Cell::setDamageValue(int damageValue, GROUP_KIND damageGroupKind) {
 }
 
 
-void Cell::addDamageValue(int damageValue, GROUP_KIND damageGroupKind) {
-	if (m_damageGroupKind != damageGroupKind) {
-		m_damageValue = 0;
-	}
-	m_damageValue += damageValue;
-	m_damageGroupKind = damageGroupKind;
-}
-
-
 void Cell::playAnimation() {
 	if (m_effectAnimation == nullptr) {
 		return;
@@ -63,6 +54,9 @@ void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characte
 	if (m_damageValue > 0) {
 		DrawCircle((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, (m_y2 - m_y1) / 2, LIGHT_RED);
 	}
+	else if (m_damageValue < 0) {
+		DrawCircle((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, (m_y2 - m_y1) / 2, PINK);
+	}
 
 	if (m_skill_p != nullptr) {
 		DrawRotaGraph((m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, 0.2 * m_exX, 0.0, characterGraphs->getSkillIconGraphs(m_skill_p->getSkillCategory()), FALSE);
@@ -81,7 +75,13 @@ bool Cell::ableSetSkill() {
 
 
 void Cell::damageCharacter() {
-	if (m_damageValue == 0 || m_character_p == nullptr || m_character_p->getGroupKind() == m_damageGroupKind) {
+	if (m_damageValue == 0 || m_character_p == nullptr) {
+		return;
+	}
+	if (m_damageValue < 0 && m_character_p->getGroupKind() != m_damageGroupKind) {
+		return;
+	}
+	if (m_damageValue > 0 && m_character_p->getGroupKind() == m_damageGroupKind) {
 		return;
 	}
 	m_character_p->damage(m_damageValue);

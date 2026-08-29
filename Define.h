@@ -57,6 +57,7 @@ const int WHITE = GetColor(200, 200, 200);
 const int RED = GetColor(200, 0, 0);
 const int LIGHT_RED = GetColor(200, 100, 100);
 const int DARK_RED = GetColor(50, 0, 0);
+const int PINK = GetColor(200, 75, 150);
 const int BLUE = GetColor(0, 0, 200);
 const int LIGHT_BLUE = GetColor(100, 100, 200);
 const int LIGHT_SKY = GetColor(100, 200, 200);
