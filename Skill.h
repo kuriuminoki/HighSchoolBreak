@@ -117,4 +117,44 @@ public:
 };
 
 
+/*
+* 攻撃力のバフ・デバフを付与するスキル
+*/
+class AttackBuffSkill : public Skill
+{
+private:
+	int m_buffTurnSum;
+	int m_attackValue;
+
+public:
+	AttackBuffSkill(int needSkillPoint, int buffTurnSum, int attackValue);
+
+	// スキルの説明文
+	std::string getSkillDesc() const;
+
+	// 発火させる。y, xはこのスキルの発動場所。
+	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const;
+};
+
+
+/*
+* スピードのバフ・デバフを付与するスキル
+*/
+class SpeedBuffSkill : public Skill
+{
+private:
+	int m_buffTurnSum;
+	int m_speedValue;
+
+public:
+	SpeedBuffSkill(int needSkillPoint, int buffTurnSum, int speedValue);
+
+	// スキルの説明文
+	std::string getSkillDesc() const;
+
+	// 発火させる。y, xはこのスキルの発動場所。
+	COMMAND_TO_BF fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const;
+};
+
+
 #endif

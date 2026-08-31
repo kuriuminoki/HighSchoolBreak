@@ -19,6 +19,7 @@ enum GROUP_KIND {
 
 
 class Skill;
+class CharacterBuff;
 
 
 /*
@@ -94,10 +95,13 @@ class Character {
 private:
 	static const int DISP_HP_COUNT = 120; // HPバーの表示時間
 
+	// キャラ情報
 	CharacterProfile* m_characterProfile;
 	CharacterStatus* m_characterStatus;
 	AttackInfo* m_attackInfo;
 	std::vector<Skill*> m_skill;
+
+	// 戦場での状態
 	int m_dispX;
 	int m_dispY;
 	int m_x;
@@ -105,6 +109,7 @@ private:
 	GROUP_KIND m_groupKind;
 	int m_dispHpCnt; // HPが増減したときに一定時間HPバーを表示する際の時間計測
 	int m_needSkillPoint; // 今手に持っているスキルを設置すると消費されるスキルポイント量
+	std::vector<CharacterBuff*> m_buffs;
 
 public:
 	Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind);
@@ -122,6 +127,7 @@ public:
 	inline GROUP_KIND getGroupKind() const { return m_groupKind; }
 	inline bool dispHpBar() const { return m_dispHpCnt > 0; }
 	inline int getNeedSkillPoint() const { return m_needSkillPoint; }
+	inline std::vector<CharacterBuff*> getBuffs() const { return m_buffs; }
 
 	// セッタ
 	inline void setDispX(int x) { m_dispX = x; }
@@ -132,10 +138,24 @@ public:
 
 	// HPをdamageValue分減らす。ただし0未満にはならない。最大HPを超えない。
 	void damage(int damageValue);
+
 	// 表示HPを更新
 	void updateDispHp();
+
 	// スキルポイントの変動
 	void addSkillPoint(int addValue);
+
+	// バフ・デバフを付与
+	void addBuff(CharacterBuff* buff);
+
+	// 次のターンにするときの処理
+	void nextTurn();
+
+	// バフ・デバフを考慮した攻撃力の補正値を返す
+	int calcAttackBuffValue() const;
+
+	// バフ・デバフを考慮したスピードの補正値を返す
+	int calcSpeedBuffValue() const;
 };
 
 

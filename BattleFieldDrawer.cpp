@@ -5,6 +5,7 @@
 #include "Character.h"
 #include "Define.h"
 #include "Dice.h"
+#include "DrawUtils.h"
 #include "Graphs.h"
 #include "Skill.h"
 #include "DxLib.h"
@@ -76,12 +77,15 @@ void BattleFieldDrawer::draw() {
 		int y = dispCharacter[i]->getDispY();
 		int wide = 0, height = 0;
 		GetGraphSize(handle, &wide, &height);
+		wide = (int)(wide * 0.1);
+		height = (int)(height * 0.1);
 		if (m_battleField_p->getActiveCharacter()->getCharacterProfile()->getId() == dispCharacter[i]->getCharacterProfile()->getId()
 			&& m_cnt / 3 % 2 == 0) {
 			SetDrawBright(100, 100, 100);
 		}
-		DrawRotaGraph(x, y - (int)(height * 0.1 / 4), 0.1, 0.0, handle, TRUE);
+		DrawRotaGraph(x, y - height / 4, 0.1, 0.0, handle, TRUE);
 		SetDrawBright(255, 255, 255);
+		drawBuffs(x - wide / 2, y, 0.8, dispCharacter[i]->getBuffs(), m_characterGraphs, 5);
 	}
 
 	// マス上のエフェクトの描画

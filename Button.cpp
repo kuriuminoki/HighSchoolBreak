@@ -2,12 +2,15 @@
 #include "BattleFieldDrawer.h"
 #include "Cell.h"
 #include "Character.h"
+#include "CharacterBuff.h"
 #include "Define.h"
+#include "DrawUtils.h"
 #include "Graphs.h"
 #include "Skill.h"
 #include "DxLib.h"
 
 
+#include <set>
 #include <sstream>
 
 
@@ -194,6 +197,7 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 	const Character* c = m_cell_p->getCharacter();
 	const Skill* skill = m_cell_p->getSkill();
 	if (c != nullptr) {
+		// キャラがいるマス
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, m_cell_p->getCharacter()->getCharacterProfile()->getFullName().c_str(), WHITE, font);
 		int hp = c->getCharacterStatus()->getHp();
 		int dispHp = c->getCharacterStatus()->getDispHp();
@@ -202,8 +206,10 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 		int skillPoint = c->getCharacterStatus()->getSkillPoint();
 		int maxSkillPoint = c->getCharacterStatus()->getMaxSkillPoint();
 		drawSkillPointBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 3 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 3 + applyEx(15, m_exY), skillPoint, maxSkillPoint, 0);
+		drawBuffs(m_x1, m_y1 + fontSize * 4, 2.0, c->getBuffs(), characterGraphs, 8);
 	}
 	else if (skill != nullptr) {
+		// スキルがあるマス
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, skill->getSkillName().c_str(), WHITE, font);
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 2, skill->getSkillDesc().c_str(), WHITE, font);
 		ostringstream oss;

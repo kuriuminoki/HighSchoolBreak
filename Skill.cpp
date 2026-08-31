@@ -1,6 +1,7 @@
 #include "Skill.h"
 #include "Cell.h"
 #include "Character.h"
+#include "CharacterBuff.h"
 #include "CharacterController.h"
 #include "Graphs.h"
 
@@ -113,6 +114,7 @@ void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < cells.size() && tx >= 0 && tx < cells[0].size()) {
+			// TODO: スキルにバフ・デバフをかけるならここに処理を書く
 			cells[ty][tx]->setDamageValue(targets[i].first, groupKind);
 			if (attack) {
 				cells[ty][tx]->damageCharacter();
@@ -144,5 +146,67 @@ string DefenceSkill::getSkillDesc() const {
 COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
 	cells[y][x]->setDamageValue(m_damage, NOT_ANY_GROUP);
 	cells[y][x]->damageCharacter();
+	return NONE_REQUEST;
+}
+
+
+/*
+* 攻撃力のバフ・デバフを付与するスキル
+*/
+AttackBuffSkill::AttackBuffSkill(int needSkillPoint, int buffTurnSum, int attackValue) {
+	m_needSkillPoint = needSkillPoint;
+	m_buffTurnSum = buffTurnSum;
+	m_attackValue = attackValue;
+	m_skillCategory = SKILL_CATEGORY::OTHER;
+}
+
+
+// スキルの説明文
+string AttackBuffSkill::getSkillDesc() const {
+	ostringstream oss;
+	if (m_attackValue > 0) {
+		oss << m_buffTurnSum << "ターンの間攻撃力が" << m_attackValue << "上がる。";
+	}
+	else {
+		oss << m_buffTurnSum << "ターンの間攻撃力が" << -m_attackValue << "下がる。";
+	}
+	return oss.str();
+}
+
+
+// 発火させる。y, xはこのスキルの発動場所。
+COMMAND_TO_BF AttackBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+	cells[y][x]->getCharacter()->addBuff(new AttackBuff(m_buffTurnSum, m_attackValue));
+	return NONE_REQUEST;
+}
+
+
+/*
+* スピードのバフ・デバフを付与するスキル
+*/
+SpeedBuffSkill::SpeedBuffSkill(int needSkillPoint, int buffTurnSum, int speedValue) {
+	m_needSkillPoint = needSkillPoint;
+	m_buffTurnSum = buffTurnSum;
+	m_speedValue = speedValue;
+	m_skillCategory = SKILL_CATEGORY::OTHER;
+}
+
+
+// スキルの説明文
+string SpeedBuffSkill::getSkillDesc() const {
+	ostringstream oss;
+	if (m_speedValue > 0) {
+		oss << m_buffTurnSum << "ターンの間スピードが" << m_speedValue << "上がる。";
+	}
+	else {
+		oss << m_buffTurnSum << "ターンの間スピードが" << -m_speedValue << "下がる。";
+	}
+	return oss.str();
+}
+
+
+// 発火させる。y, xはこのスキルの発動場所。
+COMMAND_TO_BF SpeedBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+	cells[y][x]->getCharacter()->addBuff(new SpeedBuff(m_buffTurnSum, m_speedValue));
 	return NONE_REQUEST;
 }

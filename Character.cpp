@@ -1,4 +1,5 @@
 #include "Character.h"
+#include "CharacterBuff.h"
 #include "Graphs.h"
 #include "Skill.h"
 
@@ -87,8 +88,12 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_needSkillPoint = 0;
 	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
 	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(0)));
-	m_skill.push_back(new DefenceSkill(3, 10));
-	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
+	//m_skill.push_back(new DefenceSkill(3, 10));
+	//m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
+	//m_skill.push_back(new AttackBuffSkill(3, 2, 20));
+	//m_skill.push_back(new AttackBuffSkill(3, 2, -20));
+	m_skill.push_back(new SpeedBuffSkill(3, 2, 2));
+	m_skill.push_back(new SpeedBuffSkill(3, 2, -2));
 
 }
 
@@ -99,6 +104,9 @@ Character::~Character() {
 	delete m_attackInfo;
 	for (unsigned int i = 0; i < m_skill.size(); i++) {
 		delete m_skill[i];
+	}
+	for (int i = 0; i < m_buffs.size(); i++) {
+		delete m_buffs[i];
 	}
 }
 
@@ -128,4 +136,41 @@ void Character::addSkillPoint(int addValue) {
 	int skillPoint = m_characterStatus->getSkillPoint() + addValue;
 	skillPoint = max(0, min(m_characterStatus->getMaxSkillPoint(), skillPoint));
 	m_characterStatus->setSkillPoint(skillPoint);
+}
+
+
+void Character::addBuff(CharacterBuff* buff) {
+	m_buffs.push_back(buff);
+}
+
+
+void Character::nextTurn() {
+	int len = (int)m_buffs.size();
+	for (int i = 0; i < len; i++) {
+		m_buffs[i]->nextTurn();
+		if (m_buffs[i]->isEnd()) {
+			delete m_buffs[i];
+			m_buffs[i] = m_buffs.back();
+			m_buffs.pop_back();
+			len--;
+		}
+	}
+}
+
+
+int Character::calcAttackBuffValue() const {
+	int attackSumValue = 0;
+	for (int i = 0; i < m_buffs.size(); i++) {
+		attackSumValue += m_buffs[i]->getAttackBuf();
+	}
+	return attackSumValue;
+}
+
+
+int Character::calcSpeedBuffValue() const {
+	int speedSumValue = 0;
+	for (int i = 0; i < m_buffs.size(); i++) {
+		speedSumValue += m_buffs[i]->getSpeedBuf();
+	}
+	return speedSumValue;
 }

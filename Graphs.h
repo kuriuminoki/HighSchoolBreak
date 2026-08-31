@@ -27,6 +27,15 @@ enum SKILL_CATEGORY {
 };
 
 
+// バフ・デバフの種類
+enum BUFF_KIND {
+	ATTACK_UP,		// 攻撃力アップ
+	ATTACK_DOWN,	// 攻撃力ダウン
+	SPEED_UP,		// スピードアップ
+	SPEED_DOWN		// スピードダウン
+};
+
+
 /*
 * キャラの画像
 */
@@ -34,12 +43,14 @@ class CharacterGraphs {
 private:
 	std::vector<int> m_characterIconGraphs;
 	std::vector<int> m_skillIconGraphs;
+	std::vector<int> m_statusGraphs;
 public:
 	CharacterGraphs();
 	~CharacterGraphs();
 
 	int getCharacterIconGraphs(CHARACTER_NUM characterNum) const;
 	int getSkillIconGraphs(SKILL_CATEGORY skillCategory) const;
+	int getStatusGraphs(BUFF_KIND buffKind) const;
 };
 
 

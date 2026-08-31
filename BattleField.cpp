@@ -107,6 +107,9 @@ void BattleField::nextTurn() {
 				m_cells[y][x]->nextTurn();
 			}
 		}
+		for (unsigned int i = 0; i < m_characters.size(); i++) {
+			m_characters[i]->nextTurn();
+		}
 	}
 
 	initController();
@@ -259,11 +262,19 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 		return;
 	}
 	const vector<pair<int, pair<int, int> > > targets = character_p->getAttackInfo()->getTargets();
+	int attackBuffValue = character_p->calcAttackBuffValue();
 	for (unsigned int i = 0; i < targets.size(); i++) {
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
-			m_cells[ty][tx]->setDamageValue(targets[i].first, character_p->getGroupKind());
+			int attackValue = targets[i].first;
+			if (attackValue > 0) { // 回復にバフ・デバフはかからない
+				attackValue += attackBuffValue;
+				if (attackValue < 0) {
+					continue; // 攻撃がデバフによって回復になることはない
+				}
+			}
+			m_cells[ty][tx]->setDamageValue(targets[i].first + attackBuffValue, character_p->getGroupKind());
 		}
 	}
 }

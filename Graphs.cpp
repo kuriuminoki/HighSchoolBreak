@@ -32,6 +32,15 @@ CharacterGraphs::CharacterGraphs() {
 	m_skillIconGraphs[2] = LoadGraph((commonPath + "cure.png").c_str());
 	m_skillIconGraphs[3] = LoadGraph((commonPath + "move.png").c_str());
 	m_skillIconGraphs[4] = LoadGraph((commonPath + "other.png").c_str());
+
+	commonPath = "picture/status/";
+	for (unsigned int i = 0; i < 4; i++) {
+		m_statusGraphs.push_back(-1);
+	}
+	m_statusGraphs[0] = LoadGraph((commonPath + "UŒ‚—Íã¸.png").c_str());
+	m_statusGraphs[1] = LoadGraph((commonPath + "UŒ‚—Í‰º~.png").c_str());
+	m_statusGraphs[2] = LoadGraph((commonPath + "ƒXƒs[ƒhã¸.png").c_str());
+	m_statusGraphs[3] = LoadGraph((commonPath + "ƒXƒs[ƒh‰º~.png").c_str());
 }
 
 
@@ -41,6 +50,9 @@ CharacterGraphs::~CharacterGraphs() {
 	}
 	for (unsigned int i = 0; i < m_skillIconGraphs.size(); i++) {
 		DeleteGraph(m_skillIconGraphs[i]);
+	}
+	for (unsigned int i = 0; i < m_statusGraphs.size(); i++) {
+		DeleteGraph(m_statusGraphs[i]);
 	}
 }
 
@@ -52,6 +64,11 @@ int CharacterGraphs::getCharacterIconGraphs(CHARACTER_NUM characterNum) const {
 
 int CharacterGraphs::getSkillIconGraphs(SKILL_CATEGORY skillCategory) const {
 	return m_skillIconGraphs[skillCategory];
+}
+
+
+int CharacterGraphs::getStatusGraphs(BUFF_KIND buffKind) const {
+	return m_statusGraphs[buffKind];
 }
 
 

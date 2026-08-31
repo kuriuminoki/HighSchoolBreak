@@ -177,7 +177,8 @@ bool StudentController::isWatingGoalSelect() {
 bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*> >& cells) {
 	if (leftClick() == 1) {
 		if (m_dice_p->overlap(handX, handY)) {
-			m_dice_p->init(m_character_p->getCharacterStatus()->getSpeed(), 1, 60);
+			int speed = max(1, m_character_p->getCharacterStatus()->getSpeed() + m_character_p->calcSpeedBuffValue());
+			m_dice_p->init(speed, 1, 60);
 			m_dice_p->off(DARK_YELLOW);
 		}
 	}
@@ -244,7 +245,8 @@ void EnemyController::initControl() {
 
 bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> >& cells) {
 	if (m_state == INIT_DICE) {
-		m_dice_p->init(m_character_p->getCharacterStatus()->getSpeed(), 1, 10);
+		int speed = max(1, m_character_p->getCharacterStatus()->getSpeed() + m_character_p->calcSpeedBuffValue());
+		m_dice_p->init(speed, 1, 10);
 		m_state = PLAY_DICE;
 	}
 	else if (m_state == PLAY_DICE) {
