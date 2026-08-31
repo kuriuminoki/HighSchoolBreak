@@ -24,6 +24,7 @@ public:
 
 	virtual int getAttackBuf() const { return 0; }
 	virtual int getSpeedBuf() const { return 0; }
+	virtual int getDefenseBuf() const { return 0; }
 };
 
 
@@ -52,6 +53,20 @@ public:
 	SpeedBuff(int endTurn, int speedValue);
 
 	int getSpeedBuf() const { return m_speedValue; }
+};
+
+
+/*
+* 防御力のバフ・デバフ
+*/
+class DefenseBuff : public CharacterBuff
+{
+private:
+	int m_defenseValue;
+public:
+	DefenseBuff(int endTurn, int defenseValue);
+
+	int getDefenseBuf() const { return m_defenseValue; }
 };
 
 

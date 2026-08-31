@@ -56,7 +56,7 @@ void BattleFieldDrawer::draw() {
 	for (unsigned int y = 0; y < cells.size(); y++) {
 		for (unsigned int x = 0; x < cells[y].size(); x++) {
 			// マスの描画
-			cells[y][x]->draw(m_handX, m_handY, true, m_characterGraphs);
+			cells[y][x]->draw(m_handX, m_handY, true, m_characterGraphs, m_smallFont);
 			// マス上にいるキャラ
 			if (cells[y][x]->getCharacter() != nullptr) {
 				dispCharacter.push_back(cells[y][x]->getCharacter());
@@ -83,7 +83,8 @@ void BattleFieldDrawer::draw() {
 			&& m_cnt / 3 % 2 == 0) {
 			SetDrawBright(100, 100, 100);
 		}
-		DrawRotaGraph(x, y - height / 4, 0.1, 0.0, handle, TRUE);
+		int reverseX = dispCharacter[i]->getGroupKind() == STUDENT ? FALSE : TRUE;
+		DrawRotaGraph(x, y - height / 4, 0.1, 0.0, handle, TRUE, reverseX);
 		SetDrawBright(255, 255, 255);
 		drawBuffs(x - wide / 2, y, 0.8, dispCharacter[i]->getBuffs(), m_characterGraphs, 5);
 	}

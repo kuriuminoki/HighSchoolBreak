@@ -33,3 +33,16 @@ SpeedBuff::SpeedBuff(int endTurn, int speedValue) :
 		m_buffKind = SPEED_DOWN;
 	}
 }
+
+
+DefenseBuff::DefenseBuff(int endTurn, int defenseValue) :
+	CharacterBuff(endTurn)
+{
+	m_defenseValue = defenseValue;
+	if (m_defenseValue > 0) {
+		m_buffKind = DEFENSE_UP;
+	}
+	else if (m_defenseValue < 0) {
+		m_buffKind = DEFENSE_DOWN;
+	}
+}

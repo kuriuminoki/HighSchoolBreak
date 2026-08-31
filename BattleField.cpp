@@ -141,28 +141,30 @@ bool BattleField::play() {
 
 	// キャラの操作
 	if (m_characterController->play(m_handX, m_handY, m_cells)) {
+		Character* activeCharacter = m_characters[m_activeCharacterIndex];
 		if (!m_alreadyAttack) {
 			// 移動後の攻撃
-			setDamageCell(m_characters[m_activeCharacterIndex]->getY(), m_characters[m_activeCharacterIndex]->getX(), m_characters[m_activeCharacterIndex]);
+			setDamageCell(activeCharacter->getY(), activeCharacter->getX(), activeCharacter);
 			damageCharacterEachCell();
 			m_alreadyAttack = true;
 		}
-		if (m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->getSkill() != nullptr) {
+		if (m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkill() != nullptr) {
 			// スキルの発火
-			const Skill* skill = m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->getSkill();
-			COMMAND_TO_BF com = skill->fire(m_characters[m_activeCharacterIndex]->getY(), m_characters[m_activeCharacterIndex]->getX(), m_cells, m_characterController);
+			const Skill* skill = m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkill();
+			const Character* skillOwner = m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkillOwner();
+			COMMAND_TO_BF com = skill->fire(activeCharacter->getY(), activeCharacter->getX(), m_cells, m_characterController, skillOwner);
 			switch (com) {
 			case RETRY_MOVE:
 				m_alreadyAttack = false;
 				break;
 			}
-			m_cells[m_characters[m_activeCharacterIndex]->getY()][m_characters[m_activeCharacterIndex]->getX()]->setSkill(nullptr);
+			m_cells[activeCharacter->getY()][activeCharacter->getX()]->setSkill(nullptr, nullptr);
 		}
 		else {
-			if (m_characters[m_activeCharacterIndex]->getGroupKind() == STUDENT) {
+			if (activeCharacter->getGroupKind() == STUDENT) {
 				m_endActionButton->on();
 			}
-			if (m_characters[m_activeCharacterIndex]->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
+			if (activeCharacter->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
 				nextTurn();
 			}
 		}
@@ -183,7 +185,7 @@ bool BattleField::play() {
 							m_characters[i]->addSkillPoint(-m_hangingSkill_p->getNeedSkillPoint());
 						}
 					}
-					m_cells[y][x]->setSkill(m_hangingSkill_p);
+					m_cells[y][x]->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
 					m_hangingSkill_p = nullptr;
 				}
 			}
@@ -230,13 +232,20 @@ bool BattleField::play() {
 
 	// 攻撃範囲のガイドを設定
 	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {
+		// キャラの移動先
 		setDamageCell(overlapY, overlapX, getActiveCharacter());
 	}
 	if (overlapY >= 0 && overlapX >= 0 && m_hangingSkill_p != nullptr) {
+		// 設置しようとしているスキル
 		m_hangingSkill_p->setDamageCell(overlapY, overlapX, m_cells);
 	}
 	else if (overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getSkill() != nullptr) {
+		// カーソルが重なっているスキル
 		m_cells[overlapY][overlapX]->getSkill()->setDamageCell(overlapY, overlapX, m_cells);
+	}
+	else if (overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getCharacter() != nullptr) {
+		// カーソルが重なっているキャラ
+		setDamageCell(overlapY, overlapX, m_cells[overlapY][overlapX]->getCharacter());
 	}
 
 	// 各キャラの状態更新
@@ -271,10 +280,10 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 			if (attackValue > 0) { // 回復にバフ・デバフはかからない
 				attackValue += attackBuffValue;
 				if (attackValue < 0) {
-					continue; // 攻撃がデバフによって回復になることはない
+					attackValue = 1; // 攻撃がデバフによって回復になることはない
 				}
 			}
-			m_cells[ty][tx]->setDamageValue(targets[i].first + attackBuffValue, character_p->getGroupKind());
+			m_cells[ty][tx]->setDamageValue(attackValue, character_p->getGroupKind());
 		}
 	}
 }

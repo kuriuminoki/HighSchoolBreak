@@ -24,23 +24,31 @@ CharacterGraphs::CharacterGraphs() {
 	m_characterIconGraphs[4] = LoadGraph((commonPath + "ÉJÉìÉGÉC.png").c_str());
 
 	commonPath = "picture/skillIcon/";
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 11; i++) {
 		m_skillIconGraphs.push_back(-1);
 	}
 	m_skillIconGraphs[0] = LoadGraph((commonPath + "attack.png").c_str());
-	m_skillIconGraphs[1] = LoadGraph((commonPath + "defence.png").c_str());
+	m_skillIconGraphs[1] = LoadGraph((commonPath + "defense.png").c_str());
 	m_skillIconGraphs[2] = LoadGraph((commonPath + "cure.png").c_str());
 	m_skillIconGraphs[3] = LoadGraph((commonPath + "move.png").c_str());
 	m_skillIconGraphs[4] = LoadGraph((commonPath + "other.png").c_str());
+	m_skillIconGraphs[5] = LoadGraph((commonPath + "attackUp.png").c_str());
+	m_skillIconGraphs[6] = LoadGraph((commonPath + "attackDown.png").c_str());
+	m_skillIconGraphs[7] = LoadGraph((commonPath + "speedUp.png").c_str());
+	m_skillIconGraphs[8] = LoadGraph((commonPath + "speedDown.png").c_str());
+	m_skillIconGraphs[9] = LoadGraph((commonPath + "defenseUp.png").c_str());
+	m_skillIconGraphs[10] = LoadGraph((commonPath + "defenseDown.png").c_str());
 
 	commonPath = "picture/status/";
-	for (unsigned int i = 0; i < 4; i++) {
+	for (unsigned int i = 0; i < 6; i++) {
 		m_statusGraphs.push_back(-1);
 	}
 	m_statusGraphs[0] = LoadGraph((commonPath + "çUåÇóÕè„è∏.png").c_str());
 	m_statusGraphs[1] = LoadGraph((commonPath + "çUåÇóÕâ∫ç~.png").c_str());
 	m_statusGraphs[2] = LoadGraph((commonPath + "ÉXÉsÅ[Éhè„è∏.png").c_str());
 	m_statusGraphs[3] = LoadGraph((commonPath + "ÉXÉsÅ[Éhâ∫ç~.png").c_str());
+	m_statusGraphs[4] = LoadGraph((commonPath + "ñhå‰óÕè„è∏.png").c_str());
+	m_statusGraphs[5] = LoadGraph((commonPath + "ñhå‰óÕâ∫ç~.png").c_str());
 }
 
 

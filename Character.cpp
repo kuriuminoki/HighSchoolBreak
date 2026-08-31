@@ -89,11 +89,13 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
 	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(0)));
 	//m_skill.push_back(new DefenceSkill(3, 10));
-	//m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
-	//m_skill.push_back(new AttackBuffSkill(3, 2, 20));
+	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
+	m_skill.push_back(new AttackBuffSkill(3, 2, 20));
 	//m_skill.push_back(new AttackBuffSkill(3, 2, -20));
-	m_skill.push_back(new SpeedBuffSkill(3, 2, 2));
-	m_skill.push_back(new SpeedBuffSkill(3, 2, -2));
+	//m_skill.push_back(new SpeedBuffSkill(3, 2, 2));
+	//m_skill.push_back(new SpeedBuffSkill(3, 2, -2));
+	//m_skill.push_back(new DefenseBuffSkill(3, 3, 20));
+	//m_skill.push_back(new DefenseBuffSkill(3, 3, -20));
 
 }
 
@@ -173,4 +175,13 @@ int Character::calcSpeedBuffValue() const {
 		speedSumValue += m_buffs[i]->getSpeedBuf();
 	}
 	return speedSumValue;
+}
+
+
+int Character::calcDefenseBuffValue() const {
+	int defenseSumValue = 0;
+	for (int i = 0; i < m_buffs.size(); i++) {
+		defenseSumValue += m_buffs[i]->getDefenseBuf();
+	}
+	return defenseSumValue;
 }

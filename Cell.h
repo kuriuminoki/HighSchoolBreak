@@ -30,6 +30,7 @@ private:
 
 	Character* m_character_p; // このマスにいるキャラ いなければnull
 	const Skill* m_skill_p;
+	const Character* m_skillOwner_p; // 他グループがスキルを使うとマイナスの補正がかかる用
 	EffectAnimation* m_effectAnimation;
 
 	int m_markingColor; // マーキングしていないなら-1
@@ -45,19 +46,24 @@ public:
 	inline CELL_KIND getCellKind() const { return m_cellKind; }
 	inline Character* getCharacter() const { return m_character_p; }
 	inline const Skill* getSkill() const { return m_skill_p; }
+	inline const Character* getSkillOwner() const { return m_skillOwner_p; }
 	inline const EffectAnimation* getEffectAnimation() const { return m_effectAnimation; }
 	inline int getMarkingColor() const { return m_markingColor; }
 	inline int getSkillTurn() const { return m_skillTurn; }
 
 	// セッタ
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
-	inline void setSkill(const Skill* skill_p) { m_skill_p = skill_p; m_skillTurn = 0; }
+	inline void setSkill(const Skill* skill_p, const Character* skillOwner) {
+		m_skill_p = skill_p;
+		m_skillTurn = 0;
+		m_skillOwner_p = skillOwner;
+	}
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
 	void setDamageValue(int damageValue, GROUP_KIND damageGroupKind);
 
 	void playAnimation();
 
-	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs) const;
+	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const;
 
 	bool ableMoving(); // 通過できるマスかどうか
 

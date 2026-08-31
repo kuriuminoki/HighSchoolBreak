@@ -17,7 +17,7 @@ using namespace std;
 */
 Skill::Skill() {
 	m_skillName = "スキル名未設定";
-	m_skillCategory = ATTACK;
+	m_skillCategory = ATTACK_SKILL;
 	m_needSkillPoint = 100;
 }
 
@@ -28,11 +28,10 @@ Skill::Skill() {
 MoveWithoutDiceSkill::MoveWithoutDiceSkill(int needSkillPoint, int distance) {
 	m_needSkillPoint = needSkillPoint;
 	m_distance = distance;
-	m_skillCategory = SKILL_CATEGORY::MOVE;
+	m_skillCategory = SKILL_CATEGORY::MOVE_SKILL;
 }
 
 
-// スキルの説明文
 string MoveWithoutDiceSkill::getSkillDesc() const {
 	ostringstream oss;
 	oss << m_distance << "マス以内の移動を行う。";
@@ -40,10 +39,22 @@ string MoveWithoutDiceSkill::getSkillDesc() const {
 }
 
 
-// 発火させる。y, xはこのスキルの発動場所。
-COMMAND_TO_BF MoveWithoutDiceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController) const {
+std::string MoveWithoutDiceSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "進めるマスが" << calcTurnBonus(turn) << "増加する。";
+	return oss.str();
+}
+
+
+COMMAND_TO_BF MoveWithoutDiceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController, const Character* skillOwner) const {
 	characterController->moveSpecificDistance(m_distance, cells);
 	return RETRY_MOVE;
+}
+
+
+int MoveWithoutDiceSkill::calcTurnBonus(int turn) const {
+	return turn / 2;
 }
 
 
@@ -53,9 +64,9 @@ COMMAND_TO_BF MoveWithoutDiceSkill::fire(int y, int x, std::vector<std::vector<C
 AdditionalAttackSkill::AdditionalAttackSkill(int needSkillPoint, AttackInfo* attackInfo) {
 	m_needSkillPoint = needSkillPoint;
 	m_attackInfo = attackInfo;
-	m_skillCategory = SKILL_CATEGORY::ATTACK;
+	m_skillCategory = SKILL_CATEGORY::ATTACK_SKILL;
 	if (attackInfo->getTargets()[0].first < 0) {
-		m_skillCategory = SKILL_CATEGORY::CURE;
+		m_skillCategory = SKILL_CATEGORY::CURE_SKILL;
 	}
 }
 
@@ -65,7 +76,6 @@ AdditionalAttackSkill::~AdditionalAttackSkill() {
 }
 
 
-// スキルの説明文
 string AdditionalAttackSkill::getSkillDesc() const {
 	const vector<pair<int, pair<int, int> > > targets = m_attackInfo->getTargets();
 	int maxDamage = targets[0].first, minDamage = targets[0].first;
@@ -96,8 +106,15 @@ string AdditionalAttackSkill::getSkillDesc() const {
 }
 
 
-// 発火させる。y, xはこのスキルの発動場所。
-COMMAND_TO_BF AdditionalAttackSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+std::string AdditionalAttackSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "威力が" << calcTurnBonus(turn) << "増加する。";
+	return oss.str();
+}
+
+
+COMMAND_TO_BF AdditionalAttackSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
 	putAttackInfoToCells(y, x, cells, cells[y][x]->getCharacter()->getGroupKind(), true);
 	return NONE_REQUEST;
 }
@@ -124,17 +141,21 @@ void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::
 }
 
 
+int AdditionalAttackSkill::calcTurnBonus(int turn) const {
+	return turn * 10;
+}
+
+
 /*
 * 踏んだ敵にダメージを与える(罠)スキル
 */
 DefenceSkill::DefenceSkill(int needSkillPoint, int damage) {
 	m_needSkillPoint = needSkillPoint;
 	m_damage = damage;
-	m_skillCategory = SKILL_CATEGORY::DEFENCE;
+	m_skillCategory = SKILL_CATEGORY::DEFENCE_SKILL;
 }
 
 
-// スキルの説明文
 string DefenceSkill::getSkillDesc() const {
 	ostringstream oss;
 	oss << "止まったキャラが" << m_damage << "ダメージ受ける。";
@@ -142,11 +163,23 @@ string DefenceSkill::getSkillDesc() const {
 }
 
 
-// 発火させる。y, xはこのスキルの発動場所。
-COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+std::string DefenceSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "受けるダメージがさらに" << calcTurnBonus(turn) << "増加する。";
+	return oss.str();
+}
+
+
+COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
 	cells[y][x]->setDamageValue(m_damage, NOT_ANY_GROUP);
 	cells[y][x]->damageCharacter();
 	return NONE_REQUEST;
+}
+
+
+int DefenceSkill::calcTurnBonus(int turn) const {
+	return turn * 10;
 }
 
 
@@ -157,27 +190,50 @@ AttackBuffSkill::AttackBuffSkill(int needSkillPoint, int buffTurnSum, int attack
 	m_needSkillPoint = needSkillPoint;
 	m_buffTurnSum = buffTurnSum;
 	m_attackValue = attackValue;
-	m_skillCategory = SKILL_CATEGORY::OTHER;
+	if (m_attackValue > 0) {
+		m_skillCategory = SKILL_CATEGORY::ATTACK_UP_SKILL;
+	}
+	else {
+		m_skillCategory = SKILL_CATEGORY::ATTACK_DOWN_SKILL;
+	}
 }
 
 
-// スキルの説明文
 string AttackBuffSkill::getSkillDesc() const {
 	ostringstream oss;
+	oss << m_buffTurnSum << "ターンの間攻撃力が";
 	if (m_attackValue > 0) {
-		oss << m_buffTurnSum << "ターンの間攻撃力が" << m_attackValue << "上がる。";
+		oss << m_attackValue << "上がる。";
 	}
 	else {
-		oss << m_buffTurnSum << "ターンの間攻撃力が" << -m_attackValue << "下がる。";
+		oss << -m_attackValue << "下がる。";
 	}
 	return oss.str();
 }
 
 
-// 発火させる。y, xはこのスキルの発動場所。
-COMMAND_TO_BF AttackBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+std::string AttackBuffSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "攻撃力がさらに" << calcTurnBonus(turn);
+	if (m_attackValue > 0) {
+		oss << "上がる。";
+	}
+	else {
+		oss << "下がる。";
+	}
+	return oss.str();
+}
+
+
+COMMAND_TO_BF AttackBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
 	cells[y][x]->getCharacter()->addBuff(new AttackBuff(m_buffTurnSum, m_attackValue));
 	return NONE_REQUEST;
+}
+
+
+int AttackBuffSkill::calcTurnBonus(int turn) const {
+	return turn * 10;
 }
 
 
@@ -188,25 +244,102 @@ SpeedBuffSkill::SpeedBuffSkill(int needSkillPoint, int buffTurnSum, int speedVal
 	m_needSkillPoint = needSkillPoint;
 	m_buffTurnSum = buffTurnSum;
 	m_speedValue = speedValue;
-	m_skillCategory = SKILL_CATEGORY::OTHER;
+	if (m_speedValue > 0) {
+		m_skillCategory = SKILL_CATEGORY::SPEED_UP_SKILL;
+	}
+	else {
+		m_skillCategory = SKILL_CATEGORY::SPEED_DOWN_SKILL;
+	}
 }
 
 
-// スキルの説明文
 string SpeedBuffSkill::getSkillDesc() const {
 	ostringstream oss;
+	oss << m_buffTurnSum << "ターンの間スピードが";
 	if (m_speedValue > 0) {
-		oss << m_buffTurnSum << "ターンの間スピードが" << m_speedValue << "上がる。";
+		oss << m_speedValue << "上がる。";
 	}
 	else {
-		oss << m_buffTurnSum << "ターンの間スピードが" << -m_speedValue << "下がる。";
+		oss << -m_speedValue << "下がる。";
 	}
 	return oss.str();
 }
 
 
-// 発火させる。y, xはこのスキルの発動場所。
-COMMAND_TO_BF SpeedBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller) const {
+std::string SpeedBuffSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "スピードがさらに" << calcTurnBonus(turn);
+	if (m_speedValue > 0) {
+		oss << "上がる。";
+	}
+	else {
+		oss << "下がる。";
+	}
+	return oss.str();
+}
+
+
+COMMAND_TO_BF SpeedBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
 	cells[y][x]->getCharacter()->addBuff(new SpeedBuff(m_buffTurnSum, m_speedValue));
 	return NONE_REQUEST;
+}
+
+
+int SpeedBuffSkill::calcTurnBonus(int turn) const {
+	return turn;
+}
+
+
+/*
+* 防御力のバフ・デバフを付与するスキル
+*/
+DefenseBuffSkill::DefenseBuffSkill(int needSkillPoint, int buffTurnSum, int defenseValue) {
+	m_needSkillPoint = needSkillPoint;
+	m_buffTurnSum = buffTurnSum;
+	m_defenseValue = defenseValue;
+	if (m_defenseValue > 0) {
+		m_skillCategory = SKILL_CATEGORY::DEFENSE_UP_SKILL;
+	}
+	else {
+		m_skillCategory = SKILL_CATEGORY::DEFENSE_DOWN_SKILL;
+	}
+}
+
+
+string DefenseBuffSkill::getSkillDesc() const {
+	ostringstream oss;
+	oss << m_buffTurnSum << "ターンの間防御力が";
+	if (m_defenseValue > 0) {
+		oss << m_defenseValue << "上がる。";
+	}
+	else {
+		oss << -m_defenseValue << "下がる。";
+	}
+	return oss.str();
+}
+
+
+std::string DefenseBuffSkill::getSkillBonusDesc(int turn) const {
+	if (calcTurnBonus(turn) == 0) { return ""; }
+	ostringstream oss;
+	oss << "防御力がさらに" << calcTurnBonus(turn);
+	if (m_defenseValue > 0) {
+		oss << "上がる。";
+	}
+	else {
+		oss << "下がる。";
+	}
+	return oss.str();
+}
+
+
+COMMAND_TO_BF DefenseBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
+	cells[y][x]->getCharacter()->addBuff(new DefenseBuff(m_buffTurnSum, m_defenseValue));
+	return NONE_REQUEST;
+}
+
+
+int DefenseBuffSkill::calcTurnBonus(int turn) const {
+	return turn * 10;
 }

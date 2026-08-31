@@ -19,11 +19,17 @@ enum CHARACTER_NUM {
 
 // アイコン画像の使い分け用
 enum SKILL_CATEGORY {
-	ATTACK,
-	DEFENCE,
-	CURE,
-	MOVE,
-	OTHER
+	ATTACK_SKILL,			// 攻撃
+	DEFENCE_SKILL,		// 防御
+	CURE_SKILL,			// 回復
+	MOVE_SKILL,			// 移動
+	OTHER_SKILL,			// その他
+	ATTACK_UP_SKILL,		// 攻撃力アップ
+	ATTACK_DOWN_SKILL,	// 攻撃力ダウン
+	SPEED_UP_SKILL,		// スピードアップ
+	SPEED_DOWN_SKILL,		// スピードダウン
+	DEFENSE_UP_SKILL,		// 防御力アップ
+	DEFENSE_DOWN_SKILL	// 防御力ダウン
 };
 
 
@@ -32,7 +38,9 @@ enum BUFF_KIND {
 	ATTACK_UP,		// 攻撃力アップ
 	ATTACK_DOWN,	// 攻撃力ダウン
 	SPEED_UP,		// スピードアップ
-	SPEED_DOWN		// スピードダウン
+	SPEED_DOWN,		// スピードダウン
+	DEFENSE_UP,		// 防御力アップ
+	DEFENSE_DOWN	// 防御力ダウン
 };
 
 

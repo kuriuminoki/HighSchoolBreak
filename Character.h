@@ -156,6 +156,9 @@ public:
 
 	// バフ・デバフを考慮したスピードの補正値を返す
 	int calcSpeedBuffValue() const;
+
+	// バフ・デバフを考慮した攻撃力の補正値を返す
+	int calcDefenseBuffValue() const;
 };
 
 

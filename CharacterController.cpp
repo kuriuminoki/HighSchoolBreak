@@ -170,7 +170,10 @@ void StudentController::initControl() {
 
 
 bool StudentController::isWatingGoalSelect() {
-	return m_track.empty() && !m_routeMemo.empty() && !m_ableFinish;
+	if (!m_track.empty()) {
+		return true;
+	}
+	return !m_routeMemo.empty() && !m_ableFinish;
 }
 
 

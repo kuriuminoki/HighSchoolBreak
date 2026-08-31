@@ -102,7 +102,7 @@ CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const C
 	double exX = 1, exY = 1;
 	getGameEx(exX, exY);
 	const int dx = applyEx(10, exX);
-	const int dy = applyEx(100, exY);
+	const int dy = applyEx(70, exY);
 	const int SKILL_WIDE = min((x2 - x1) / 2, (y2 - y1) / 2) - applyEx(15, exX);
 	for (unsigned int i = 0; i < m_character_p->getSkill().size(); i++) {
 		int sx1 = i % 2 == 0 ? x1 + dx : x1 + dx + SKILL_WIDE + dx;
@@ -210,11 +210,20 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 	}
 	else if (skill != nullptr) {
 		// スキルがあるマス
+		int height = 0;
+		int handle = characterGraphs->getCharacterIconGraphs(m_cell_p->getSkillOwner()->getCharacterProfile()->getCharacterIconGraphNum());
+		GetGraphSize(handle, NULL, &height);
+		const double EX = 0.28;
+		SetDrawBright(100, 100, 100);
+		DrawRotaGraph((m_x1 + m_x2) / 2, m_y2 - (int)(height * EX / 2), EX, 0.0, handle, TRUE);
+		SetDrawBright(255, 255, 255);
+
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize, skill->getSkillName().c_str(), WHITE, font);
 		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 2, skill->getSkillDesc().c_str(), WHITE, font);
 		ostringstream oss;
 		oss << m_cell_p->getSkillTurn() << "ターン経過";
-		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 3, oss.str().c_str(), WHITE, font);
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 3, oss.str().c_str(), RED, font);
+		DrawStringToHandle(m_x1 + indentSize, m_y1 + fontSize * 4, skill->getSkillBonusDesc(m_cell_p->getSkillTurn()).c_str(), RED, font);
 	}
 }
 
