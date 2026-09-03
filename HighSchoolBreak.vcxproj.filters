@@ -87,6 +87,12 @@
     <ClCompile Include="DrawUtils.cpp">
       <Filter>ソース ファイル\Ui</Filter>
     </ClCompile>
+    <ClCompile Include="Sound.cpp">
+      <Filter>ソース ファイル\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="SpecialSkill.cpp">
+      <Filter>ソース ファイル\Api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -133,6 +139,12 @@
     </ClInclude>
     <ClInclude Include="DrawUtils.h">
       <Filter>ヘッダー ファイル\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>ヘッダー ファイル\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecialSkill.h">
+      <Filter>ヘッダー ファイル\Api</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

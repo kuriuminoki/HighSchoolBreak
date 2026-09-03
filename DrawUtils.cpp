@@ -5,6 +5,7 @@
 
 
 #include <set>
+#include <string>
 #include <vector>
 
 
@@ -38,6 +39,7 @@ void drawSkillPointBar(int x1, int y1, int x2, int y2, int skillPoint, int maxSk
 }
 
 
+// 保持しているバフ・デバフのアイコンを並べて描画
 int drawBuffs(int x, int y, double ex, vector<CharacterBuff*> buffs, const CharacterGraphs* characterGraphs, int dispLimit) {
 	set<BUFF_KIND> alreadyDisp;
 	int buffX = 0;
@@ -57,4 +59,15 @@ int drawBuffs(int x, int y, double ex, vector<CharacterBuff*> buffs, const Chara
 		}
 	}
 	return buffWide;
+}
+
+
+// 文字列を領域の真ん中に描画したい時の座標を取得
+void getDispCenterStrPos(int* x, int* y, int x1, int y1, int x2, int y2, int font, string dispStr) {
+	int fontWide = GetDrawStringWidthToHandle(dispStr.c_str(), (int)dispStr.size(), font);
+	*x = x1 + (x2 - x1 - fontWide) / 2;
+
+	int fontHeight = 0;
+	GetFontStateToHandle(NULL, &fontHeight, NULL, font);
+	*y = y1 + (y2 - y1 - fontHeight) / 2;
 }

@@ -56,6 +56,8 @@ private:
 	int m_speed;
 	int m_skillPoint;
 	int m_maxSkillPoint;
+	int m_specialPoint;
+	int m_maxSpecialPoint;
 
 public:
 	CharacterStatus();
@@ -67,11 +69,14 @@ public:
 	inline int getSpeed() const { return m_speed; }
 	inline int getSkillPoint() const { return m_skillPoint; }
 	inline int getMaxSkillPoint() const { return m_maxSkillPoint; }
+	inline int getSpecialPoint() const { return m_specialPoint; }
+	inline int getMaxSpecialPoint() const { return m_maxSpecialPoint; }
 
 	// セッタ
 	inline void setDispHp(int dispHp) { m_dispHp = dispHp; }
 	inline void setHp(int hp) { m_hp = hp; }
 	inline void setSkillPoint(int skillPoint) { m_skillPoint = skillPoint; }
+	inline void setSpecialPoint(int specialPoint) { m_specialPoint = specialPoint; }
 
 };
 
@@ -100,6 +105,7 @@ private:
 	CharacterStatus* m_characterStatus;
 	AttackInfo* m_attackInfo;
 	std::vector<Skill*> m_skill;
+	Skill* m_specialSkill;
 
 	// 戦場での状態
 	int m_dispX;
@@ -120,6 +126,7 @@ public:
 	inline const CharacterStatus* getCharacterStatus() const { return m_characterStatus; }
 	inline const AttackInfo* getAttackInfo() const { return m_attackInfo; }
 	inline std::vector<Skill*> getSkill() const { return m_skill; }
+	inline Skill* getSpecialSkill() const { return m_specialSkill; }
 	inline int getX() const { return m_x; }
 	inline int getY() const { return m_y; }
 	inline int getDispX() const { return m_dispX; }
@@ -144,6 +151,9 @@ public:
 
 	// スキルポイントの変動
 	void addSkillPoint(int addValue);
+
+	// 必殺ポイントの変動
+	void addSpecialPoint(int addValue);
 
 	// バフ・デバフを付与
 	void addBuff(CharacterBuff* buff);

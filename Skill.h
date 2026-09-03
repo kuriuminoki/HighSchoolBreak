@@ -18,8 +18,9 @@ enum GROUP_KIND;
 
 // BattleFieldクラスへの要求
 enum COMMAND_TO_BF {
-	NONE_REQUEST,
-	RETRY_MOVE
+	NONE_REQUEST,			// 特になし
+	RETRY_MOVE,				// キャラの移動パートをもう一度やってください
+	SKILL_FIRE_CONTINUE		// 次のフレームでもfireを呼んでください
 };
 
 
@@ -52,6 +53,13 @@ public:
 
 	// 攻撃範囲を設定する。
 	virtual void setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const {}
+
+	// 所属によるペナルティがあるか
+	bool isGroupPenalty(int y, int x, std::vector<std::vector<Cell*> >& cells, const Character* skillOwner) const;
+
+private:
+	// ターン経過で増えるボーナスの計算
+	virtual int calcTurnBonus(int turn) const { return 0; }
 };
 
 
@@ -107,7 +115,7 @@ public:
 	void setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const;
 
 private:
-	void putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack) const;
+	void putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack, const Character* skillOwner) const;
 
 	// ターン経過で増えるボーナスの計算
 	int calcTurnBonus(int turn) const;

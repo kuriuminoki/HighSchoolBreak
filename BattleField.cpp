@@ -7,6 +7,7 @@
 #include "Define.h"
 #include "Dice.h"
 #include "Skill.h"
+#include "Sound.h"
 
 #include <algorithm>
 #include <queue>
@@ -16,9 +17,28 @@ using namespace std;
 
 
 /*
+* BattleField用の音
+*/
+BattleFieldSoundHandle::BattleFieldSoundHandle() {
+	m_decideSound = LoadSoundMem("sound/battleField/decide.mp3");
+	m_overlapSound = LoadSoundMem("sound/battleField/overlap.mp3");
+}
+
+
+BattleFieldSoundHandle::~BattleFieldSoundHandle() {
+	DeleteSoundMem(m_decideSound);
+	DeleteSoundMem(m_overlapSound);
+}
+
+
+/*
 * すごろくゲーム
 */
-BattleField::BattleField() {
+BattleField::BattleField(SoundPlayer* soundPlayer_p) {
+	m_soundPlayer_p = soundPlayer_p;
+
+	m_soundHandle = new BattleFieldSoundHandle();
+
 	double exX = 1.0, exY = 1.0;
 	getGameEx(exX, exY);
 
@@ -77,6 +97,7 @@ BattleField::BattleField() {
 
 
 BattleField::~BattleField() {
+	delete m_soundHandle;
 	for (unsigned int i = 0; i < m_characters.size(); i++) {
 		delete m_characters[i];
 	}
@@ -139,6 +160,13 @@ bool BattleField::play() {
 	GetMousePoint(&m_handX, &m_handY);
 	m_endActionButton->off(DARK_RED);
 
+	// 各マスのダメージリセット (最初にやらないとスキルのガイド用に付けていたダメージが適用される分二重になる)
+	for (unsigned int y = 0; y < m_cells.size(); y++) {
+		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+			m_cells[y][x]->setDamageValue(0, STUDENT);
+		}
+	}
+
 	// キャラの操作
 	if (m_characterController->play(m_handX, m_handY, m_cells)) {
 		Character* activeCharacter = m_characters[m_activeCharacterIndex];
@@ -174,7 +202,6 @@ bool BattleField::play() {
 	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-			m_cells[y][x]->setDamageValue(0, STUDENT);
 			if (m_cells[y][x]->overlap(m_handX, m_handY)) {
 				overlapY = y;
 				overlapX = x;
@@ -184,6 +211,9 @@ bool BattleField::play() {
 						if (m_characters[i] == m_hangingCharacterWithSkill_p) {
 							m_characters[i]->addSkillPoint(-m_hangingSkill_p->getNeedSkillPoint());
 						}
+					}
+					for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
+						m_characterInfoButton[i]->updateCharacterInfo();
 					}
 					m_cells[y][x]->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
 					m_hangingSkill_p = nullptr;
@@ -195,6 +225,9 @@ bool BattleField::play() {
 
 	// カーソルが重なっているマスの情報を表示する
 	if (overlapX >= 0 && overlapY >= 0) {
+		if (m_cellInfoButton->getCell() != m_cells[overlapY][overlapX]) {
+			m_soundPlayer_p->pushSoundQueue(m_soundHandle->getOverlapSound());
+		}
 		m_cellInfoButton->setCell(m_cells[overlapY][overlapX]);
 	}
 	else {
@@ -230,6 +263,15 @@ bool BattleField::play() {
 		m_skillInfoButton->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
 	}
 
+	// 必殺技
+	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
+		Skill* overlapSpecial = m_characterInfoButton[i]->getOverlapSpecial(m_handX, m_handY);
+		if (overlapSpecial != nullptr) {
+			m_skillInfoButton->setSkill(overlapSpecial, m_characterInfoButton[i]->getCharacter());
+			break;
+		}
+	}
+
 	// 攻撃範囲のガイドを設定
 	if (!m_alreadyAttack && getActiveCharacter()->getGroupKind() == STUDENT && overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getMarkingColor() != -1) {
 		// キャラの移動先
@@ -261,6 +303,8 @@ bool BattleField::play() {
 			m_characters[i]->setNeedSkillPoint(0);
 		}
 	}
+
+	m_soundPlayer_p->play();
 
 	return false;
 }

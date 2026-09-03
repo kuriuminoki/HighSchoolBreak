@@ -2,6 +2,7 @@
 #include "CharacterBuff.h"
 #include "Graphs.h"
 #include "Skill.h"
+#include "SpecialSkill.h"
 
 
 using namespace std;
@@ -51,6 +52,8 @@ CharacterStatus::CharacterStatus() {
 	m_speed = 6;
 	m_skillPoint = 0;
 	m_maxSkillPoint = 30;
+	m_specialPoint = 0;
+	m_maxSpecialPoint = 20;
 }
 
 
@@ -96,6 +99,7 @@ Character::Character(CharacterProfile* characterProfile, CharacterStatus* charac
 	//m_skill.push_back(new SpeedBuffSkill(3, 2, -2));
 	//m_skill.push_back(new DefenseBuffSkill(3, 3, 20));
 	//m_skill.push_back(new DefenseBuffSkill(3, 3, -20));
+	m_specialSkill = new AttackSpecialSkill(new AttackInfo(1));
 
 }
 
@@ -110,6 +114,7 @@ Character::~Character() {
 	for (int i = 0; i < m_buffs.size(); i++) {
 		delete m_buffs[i];
 	}
+	delete m_specialSkill;
 }
 
 
@@ -138,6 +143,17 @@ void Character::addSkillPoint(int addValue) {
 	int skillPoint = m_characterStatus->getSkillPoint() + addValue;
 	skillPoint = max(0, min(m_characterStatus->getMaxSkillPoint(), skillPoint));
 	m_characterStatus->setSkillPoint(skillPoint);
+
+	if (addValue < 0) {
+		addSpecialPoint(-addValue);
+	}
+}
+
+
+void Character::addSpecialPoint(int addValue) {
+	int specialPoint = m_characterStatus->getSpecialPoint() + addValue;
+	specialPoint = max(0, min(m_characterStatus->getMaxSpecialPoint(), specialPoint));
+	m_characterStatus->setSpecialPoint(specialPoint);
 }
 
 

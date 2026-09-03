@@ -61,6 +61,27 @@ public:
 	TextButton(std::string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor);
 
 	void draw(int handX, int handY, bool fill, int font, int textColor) const;
+
+protected:
+	void drawText(int font, int textColor) const;
+};
+
+
+/*
+* ゲージ付きテキストボタン
+*/
+class GaugeTextButton : public TextButton
+{
+private:
+	int m_maxValue;
+	int m_value;
+	int m_consumeColor;
+public:
+	GaugeTextButton(std::string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor, int maxValue, int consumeColor);
+
+	void setValue(int value) { m_value = value; }
+
+	void draw(int handX, int handY, bool fill, int font, int textColor) const;
 };
 
 
@@ -85,6 +106,7 @@ private:
 	const Character* m_character_p;
 
 	std::vector<GraphButton*> m_skillButton;
+	GaugeTextButton* m_specialAttackButton;
 
 public:
 	CharacterInfoButton(int x1, int y1, int x2, int y2, const Character* character_p);
@@ -97,6 +119,10 @@ public:
 	inline void setCharacter(const Character* character_p) { m_character_p = character_p; }
 
 	Skill* getOverlapSkill(int handX, int handY) const;
+
+	Skill* getOverlapSpecial(int handX, int handY) const;
+
+	void updateCharacterInfo();
 
 	void draw(int handX, int handY, const CharacterGraphs* characterGraphs, int font) const;
 };
@@ -112,6 +138,9 @@ private:
 
 public:
 	CellInfoButton(int x1, int y1, int x2, int y2, const Cell* cell_p);
+
+	// ゲッタ
+	inline const Cell* getCell() const { return m_cell_p; }
 
 	// セッタ
 	inline void setCell(const Cell* cell_p) { m_cell_p = cell_p; }

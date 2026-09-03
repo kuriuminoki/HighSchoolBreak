@@ -74,7 +74,7 @@ void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characte
 		DrawCircle(cx + wide, cy + wide, (int)(wide * 0.7), BLACK);
 		ostringstream oss;
 		oss << m_skillTurn;
-		int fontSize = GetDrawStringWidthToHandle(oss.str().c_str(), oss.str().size(), font);
+		int fontSize = GetDrawStringWidthToHandle(oss.str().c_str(), (int)oss.str().size(), font);
 		DrawStringToHandle(cx + wide - fontSize / 2, cy + wide / 2, oss.str().c_str(), WHITE, font);
 	}
 }

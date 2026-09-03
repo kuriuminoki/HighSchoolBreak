@@ -66,9 +66,34 @@ TextButton::TextButton(string dispText, int x1, int y1, int x2, int y2, int edge
 
 void TextButton::draw(int handX, int handY, bool fill, int font, int textColor) const {
 	Button::draw(handX, handY, fill);
-	int fontSize = 0;
-	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize * ((int)m_dispText.length() / 4), (m_y1 + m_y2) / 2 - fontSize / 2, m_dispText.c_str(), textColor, font);
+	drawText(font, textColor);
+}
+
+
+void TextButton::drawText(int font, int textColor) const {
+	int x = 0, y = 0;
+	getDispCenterStrPos(&x, &y, m_x1, m_y1, m_x2, m_y2, font, m_dispText);
+	DrawStringToHandle(x, y, m_dispText.c_str(), textColor, font);
+}
+
+
+/*
+* ゲージ付きテキストボタン
+*/
+GaugeTextButton::GaugeTextButton(string dispText, int x1, int y1, int x2, int y2, int edgeLength, int innerColor, int edgeColor, int maxValue, int consumeColor) :
+	TextButton(dispText, x1, y1, x2, y2, edgeLength, innerColor, edgeColor)
+{
+	m_maxValue = maxValue;
+	m_value = 0;
+	m_consumeColor = consumeColor;
+}
+
+
+void GaugeTextButton::draw(int handX, int handY, bool fill, int font, int textColor) const {
+	Button::draw(handX, handY, fill);
+	int borderX = m_x1 + (m_x2 - m_x1) * m_value / m_maxValue;
+	DrawBox(borderX, m_y1, m_x2, m_y2, m_consumeColor, fill);
+	drawText(font, textColor);
 }
 
 
@@ -109,6 +134,9 @@ CharacterInfoButton::CharacterInfoButton(int x1, int y1, int x2, int y2, const C
 		int sy1 = i / 2 == 0 ? y1 + dy : y1 + dy + SKILL_WIDE + dx;
 		m_skillButton.push_back(new GraphButton(sx1, sy1, sx1 + SKILL_WIDE, sy1 + SKILL_WIDE, applyEx(3, exX), WHITE, RED));
 	}
+	int sx1 = x1 + dx;
+	int sy1 = y1 + dy + SKILL_WIDE * 2 + dx * 2;
+	m_specialAttackButton = new GaugeTextButton("必殺技", sx1, sy1, sx1 + SKILL_WIDE * 2 + dx, sy1 + applyEx(40, exY), applyEx(3, exX), WHITE, RED, 20, GRAY);
 }
 
 
@@ -116,6 +144,7 @@ CharacterInfoButton::~CharacterInfoButton() {
 	for (unsigned int i = 0; i < m_skillButton.size(); i++) {
 		delete m_skillButton[i];
 	}
+	delete m_specialAttackButton;
 }
 
 
@@ -126,6 +155,18 @@ Skill* CharacterInfoButton::getOverlapSkill(int handX, int handY) const {
 		}
 	}
 	return nullptr;
+}
+
+
+Skill* CharacterInfoButton::getOverlapSpecial(int handX, int handY) const {
+	if (m_specialAttackButton->overlap(handX, handY)) {
+		return m_character_p->getSpecialSkill();
+	}
+}
+
+
+void CharacterInfoButton::updateCharacterInfo() {
+	m_specialAttackButton->setValue(m_character_p->getCharacterStatus()->getSpecialPoint());
 }
 
 
@@ -163,6 +204,7 @@ void CharacterInfoButton::draw(int handX, int handY, const CharacterGraphs* char
 			m_skillButton[i]->draw(handX, handY, true, characterGraphs->getSkillIconGraphs(m_character_p->getSkill()[i]->getSkillCategory()));
 			SetDrawBright(255, 255, 255);
 		}
+		m_specialAttackButton->draw(handX, handY, true, font,BLACK);
 	}
 }
 
@@ -248,11 +290,14 @@ void SkillInfoButton::draw(int handX, int handY, const CharacterGraphs* characte
 	GetFontStateToHandle(NULL, &fontSize, NULL, font);
 	DrawStringToHandle(m_x1, m_y1, m_skill_p->getSkillName().c_str(), BLACK, font);
 	DrawStringToHandle(m_x1, m_y1 + fontSize, m_skill_p->getSkillDesc().c_str(), BLACK, font);
-	ostringstream oss;
-	oss << "消費ポイント：" << m_skill_p->getNeedSkillPoint() << " / " << m_character_p->getCharacterStatus()->getSkillPoint();
-	int color = GREEN;
-	if (m_skill_p->getNeedSkillPoint() > m_character_p->getCharacterStatus()->getSkillPoint()) {
-		color = RED;
+	if (m_skill_p->getNeedSkillPoint() > 0) {
+		// 必殺技は消費ポイント表示なし
+		ostringstream oss;
+		oss << "消費ポイント：" << m_skill_p->getNeedSkillPoint() << " / " << m_character_p->getCharacterStatus()->getSkillPoint();
+		int color = GREEN;
+		if (m_skill_p->getNeedSkillPoint() > m_character_p->getCharacterStatus()->getSkillPoint()) {
+			color = RED;
+		}
+		DrawStringToHandle(m_x1, m_y1 + fontSize * 2, oss.str().c_str(), color, font);
 	}
-	DrawStringToHandle(m_x1, m_y1 + fontSize * 2, oss.str().c_str(), color, font);
 }

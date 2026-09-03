@@ -1,5 +1,6 @@
 #include "Dice.h"
 #include "Button.h"
+#include "DrawUtils.h"
 #include "DxLib.h"
 
 #include <sstream>
@@ -38,7 +39,7 @@ void Dice::draw(int handX, int handY, int font, int color) const {
 
 	ostringstream oss;
 	oss << m_value;
-	int fontSize = 0;
-	GetFontStateToHandle(NULL, &fontSize, NULL, font);
-	DrawStringToHandle((m_x1 + m_x2) / 2 - fontSize, (m_y1 + m_y2) / 2 - fontSize / 2, oss.str().c_str(), color, font);
+	int x = 0, y = 0;
+	getDispCenterStrPos(&x, &y, m_x1, m_y1, m_x2, m_y2, font, oss.str());
+	DrawStringToHandle(x, y, oss.str().c_str(), color, font);
 }

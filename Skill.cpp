@@ -6,6 +6,7 @@
 #include "Graphs.h"
 
 
+#include <algorithm>
 #include <sstream>
 
 
@@ -19,6 +20,14 @@ Skill::Skill() {
 	m_skillName = "スキル名未設定";
 	m_skillCategory = ATTACK_SKILL;
 	m_needSkillPoint = 100;
+}
+
+
+bool Skill::isGroupPenalty(int y, int x, std::vector<std::vector<Cell*> >& cells, const Character* skillOwner) const {
+	if (cells[y][x]->getCharacter() == nullptr || skillOwner == nullptr) {
+		return false;
+	}
+	return cells[y][x]->getCharacter()->getGroupKind() != skillOwner->getGroupKind();
 }
 
 
@@ -48,13 +57,17 @@ std::string MoveWithoutDiceSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF MoveWithoutDiceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* characterController, const Character* skillOwner) const {
-	characterController->moveSpecificDistance(m_distance, cells);
+	int distance = m_distance + calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		distance = max(1, distance / 2);
+	}
+	characterController->moveSpecificDistance(distance, cells);
 	return RETRY_MOVE;
 }
 
 
 int MoveWithoutDiceSkill::calcTurnBonus(int turn) const {
-	return turn / 2;
+	return min(turn / 2, 3);
 }
 
 
@@ -115,24 +128,36 @@ std::string AdditionalAttackSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF AdditionalAttackSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
-	putAttackInfoToCells(y, x, cells, cells[y][x]->getCharacter()->getGroupKind(), true);
+	putAttackInfoToCells(y, x, cells, cells[y][x]->getCharacter()->getGroupKind(), true, skillOwner);
 	return NONE_REQUEST;
 }
 
 
 void AdditionalAttackSkill::setDamageCell(int y, int x, std::vector<std::vector<Cell*> >& cells) const {
-	putAttackInfoToCells(y, x, cells, GROUP_KIND::STUDENT, false);
+	putAttackInfoToCells(y, x, cells, GROUP_KIND::STUDENT, false, nullptr);
 }
 
 
-void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack) const {
+void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack, const Character* skillOwner) const {
 	const vector<pair<int, pair<int, int> > > targets = m_attackInfo->getTargets();
+	int bonus = calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (m_skillCategory == CURE_SKILL) {
+		bonus *= -1;
+	}
+	int penalty = 1;
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		penalty = 2; // 相手のスキルなら威力半減
+	}
 	for (unsigned int i = 0; i < targets.size(); i++) {
 		int ty = y + targets[i].second.first;
 		int tx = x + targets[i].second.second;
 		if (ty >= 0 && ty < cells.size() && tx >= 0 && tx < cells[0].size()) {
 			// TODO: スキルにバフ・デバフをかけるならここに処理を書く
-			cells[ty][tx]->setDamageValue(targets[i].first, groupKind);
+			int damage = (targets[i].first + bonus) / penalty;
+			if (damage == 0) {
+				damage = targets[i].first / abs(targets[i].first); // 攻撃なら1, 回復なら-1 が最低効果
+			}
+			cells[ty][tx]->setDamageValue(damage, groupKind);
 			if (attack) {
 				cells[ty][tx]->damageCharacter();
 			}
@@ -142,7 +167,7 @@ void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::
 
 
 int AdditionalAttackSkill::calcTurnBonus(int turn) const {
-	return turn * 10;
+	return min(turn / 2, 10);
 }
 
 
@@ -172,14 +197,18 @@ std::string DefenceSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
-	cells[y][x]->setDamageValue(m_damage, NOT_ANY_GROUP);
+	int damage = m_damage + calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		damage = max(1, damage / 2);
+	}
+	cells[y][x]->setDamageValue(damage, NOT_ANY_GROUP);
 	cells[y][x]->damageCharacter();
 	return NONE_REQUEST;
 }
 
 
 int DefenceSkill::calcTurnBonus(int turn) const {
-	return turn * 10;
+	return min(turn, m_damage * 2);
 }
 
 
@@ -227,13 +256,17 @@ std::string AttackBuffSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF AttackBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
-	cells[y][x]->getCharacter()->addBuff(new AttackBuff(m_buffTurnSum, m_attackValue));
+	int attackValue = m_attackValue + calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		attackValue = max(1, attackValue / 2);
+	}
+	cells[y][x]->getCharacter()->addBuff(new AttackBuff(m_buffTurnSum, attackValue));
 	return NONE_REQUEST;
 }
 
 
 int AttackBuffSkill::calcTurnBonus(int turn) const {
-	return turn * 10;
+	return min(turn, m_attackValue * 2);
 }
 
 
@@ -281,13 +314,17 @@ std::string SpeedBuffSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF SpeedBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
-	cells[y][x]->getCharacter()->addBuff(new SpeedBuff(m_buffTurnSum, m_speedValue));
+	int speedValue = m_speedValue + calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		speedValue = max(1, speedValue / 2);
+	}
+	cells[y][x]->getCharacter()->addBuff(new SpeedBuff(m_buffTurnSum, speedValue));
 	return NONE_REQUEST;
 }
 
 
 int SpeedBuffSkill::calcTurnBonus(int turn) const {
-	return turn;
+	return min(turn / 2, 6);
 }
 
 
@@ -335,11 +372,15 @@ std::string DefenseBuffSkill::getSkillBonusDesc(int turn) const {
 
 
 COMMAND_TO_BF DefenseBuffSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
-	cells[y][x]->getCharacter()->addBuff(new DefenseBuff(m_buffTurnSum, m_defenseValue));
+	int defenseValue = m_defenseValue + calcTurnBonus(cells[y][x]->getSkillTurn());
+	if (isGroupPenalty(y, x, cells, skillOwner)) {
+		defenseValue = max(1, defenseValue / 2);
+	}
+	cells[y][x]->getCharacter()->addBuff(new DefenseBuff(m_buffTurnSum, defenseValue));
 	return NONE_REQUEST;
 }
 
 
 int DefenseBuffSkill::calcTurnBonus(int turn) const {
-	return turn * 10;
+	return min(turn, m_defenseValue * 2);
 }

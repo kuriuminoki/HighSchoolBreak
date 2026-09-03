@@ -15,10 +15,32 @@ class CharacterController;
 class TextButton;
 class Skill;
 class SkillInfoButton;
+class SoundPlayer;
 
 
+/*
+* BattleField用の音
+*/
+class BattleFieldSoundHandle {
+private:
+	int m_decideSound;
+	int m_overlapSound;
+public:
+	BattleFieldSoundHandle();
+	~BattleFieldSoundHandle();
+
+	inline int getDecideSound() const { return m_decideSound; }
+	inline int getOverlapSound() const { return m_overlapSound; }
+};
+
+
+/*
+* すごろくゲーム
+*/
 class BattleField {
 private:
+	SoundPlayer* m_soundPlayer_p;
+
 	int m_columnSize; // 横サイズ
 	int m_rowSize; // 縦サイズ
 	std::vector<std::vector<Cell*> > m_cells; // マス cells[Y][X]
@@ -28,6 +50,7 @@ private:
 	SkillInfoButton* m_skillInfoButton;
 	Dice* m_dice;
 	TextButton* m_endActionButton; // 行動終了ボタン
+	BattleFieldSoundHandle* m_soundHandle;
 
 	int m_handX, m_handY;
 	int m_activeCharacterIndex; // 今行動中のキャラ
@@ -37,7 +60,7 @@ private:
 	const Character* m_hangingCharacterWithSkill_p; // 今設置しようとしているスキルの所持キャラ
 
 public:
-	BattleField();
+	BattleField(SoundPlayer* soundPlayer_p);
 	~BattleField();
 
 	// ゲッタ

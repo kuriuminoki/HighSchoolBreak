@@ -1,5 +1,6 @@
 #include "Control.h"
 #include "Define.h"
+#include "Sound.h"
 #include "DxLib.h"
 
 #include "BattleField.h"
@@ -61,7 +62,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	SetMouseDispFlag(TRUE);//マウス表示
 
 	// ゲーム本体
-	BattleField* battleField = new BattleField();
+	SoundPlayer* soundPlayer = new SoundPlayer();
+	BattleField* battleField = new BattleField(soundPlayer);
 	BattleFieldDrawer* battleFieldDrawer = new BattleFieldDrawer(battleField);
 
 	while (SetDrawScreen(screen) == 0 && ProcessMessage() == 0 && ClearDrawScreen() == 0)
