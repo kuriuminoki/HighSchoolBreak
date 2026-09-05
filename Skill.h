@@ -20,7 +20,7 @@ enum GROUP_KIND;
 enum COMMAND_TO_BF {
 	NONE_REQUEST,			// 特になし
 	RETRY_MOVE,				// キャラの移動パートをもう一度やってください
-	SKILL_FIRE_CONTINUE		// 次のフレームでもfireを呼んでください
+	SKILL_PLAY_CONTINUE		// 次のフレームでもSkillPlayerを呼んでください
 };
 
 

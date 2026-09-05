@@ -50,6 +50,7 @@ enum BUFF_KIND {
 class CharacterGraphs {
 private:
 	std::vector<int> m_characterIconGraphs;
+	std::vector<int> m_specialCharacterGraphs;
 	std::vector<int> m_skillIconGraphs;
 	std::vector<int> m_statusGraphs;
 public:
@@ -57,6 +58,7 @@ public:
 	~CharacterGraphs();
 
 	int getCharacterIconGraphs(CHARACTER_NUM characterNum) const;
+	int getSpecialCharacterGraphs(CHARACTER_NUM characterNum) const;
 	int getSkillIconGraphs(SKILL_CATEGORY skillCategory) const;
 	int getStatusGraphs(BUFF_KIND buffKind) const;
 };
@@ -64,7 +66,8 @@ public:
 
 // エフェクト画像の種類
 enum EFFECT_KIND {
-	ATARI
+	ATARI_EFFECT,
+	SKILL_EFFECT
 };
 
 
@@ -74,6 +77,7 @@ enum EFFECT_KIND {
 class EffectGraphs {
 private:
 	std::vector<int> m_atariGraphs;
+	std::vector<int> m_skillGraphs;
 public:
 	EffectGraphs();
 	~EffectGraphs();
@@ -84,8 +88,10 @@ public:
 	// エフェクト画像の枚数を取得
 	static int getEffectSize(EFFECT_KIND effectKind) {
 		switch (effectKind) {
-		case ATARI:
+		case ATARI_EFFECT:
 			return 4;
+		case SKILL_EFFECT:
+			return 6;
 		}
 		return 0;
 	}

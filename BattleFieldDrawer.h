@@ -29,6 +29,9 @@ public:
 	~BattleFieldDrawer();
 
 	void draw();
+
+private:
+	void drawCellsAndCharacters();
 };
 
 

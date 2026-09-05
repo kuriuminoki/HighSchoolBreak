@@ -52,7 +52,7 @@ CharacterStatus::CharacterStatus() {
 	m_speed = 6;
 	m_skillPoint = 0;
 	m_maxSkillPoint = 30;
-	m_specialPoint = 0;
+	m_specialPoint = 18;
 	m_maxSpecialPoint = 20;
 }
 

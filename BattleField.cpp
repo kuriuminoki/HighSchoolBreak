@@ -6,6 +6,7 @@
 #include "Control.h"
 #include "Define.h"
 #include "Dice.h"
+#include "Graphs.h"
 #include "Skill.h"
 #include "Sound.h"
 
@@ -22,12 +23,77 @@ using namespace std;
 BattleFieldSoundHandle::BattleFieldSoundHandle() {
 	m_decideSound = LoadSoundMem("sound/battleField/decide.mp3");
 	m_overlapSound = LoadSoundMem("sound/battleField/overlap.mp3");
+	m_skillPlaySound = LoadSoundMem("sound/battleField/スキル発動.wav");
+	m_skillDescSound = LoadSoundMem("sound/battleField/スキル説明.wav");
+	m_specialDescSound = LoadSoundMem("sound/battleField/必殺技説明.wav");
+	m_hangingSound = LoadSoundMem("sound/battleField/hanging.mp3");
+	m_setSkillSound = LoadSoundMem("sound/battleField/setSkill.mp3");
+	m_moveSound = LoadSoundMem("sound/battleField/move.mp3");
 }
 
 
 BattleFieldSoundHandle::~BattleFieldSoundHandle() {
 	DeleteSoundMem(m_decideSound);
 	DeleteSoundMem(m_overlapSound);
+	DeleteSoundMem(m_skillPlaySound);
+	DeleteSoundMem(m_skillDescSound);
+	DeleteSoundMem(m_specialDescSound);
+	DeleteSoundMem(m_hangingSound);
+	DeleteSoundMem(m_setSkillSound);
+	DeleteSoundMem(m_moveSound);
+}
+
+
+/*
+* スキル発動処理
+*/
+SkillPlayer::SkillPlayer(bool isSpecial, CharacterController* userController, SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p) {
+	m_isSpecial = isSpecial;
+	m_userController_p = userController;
+	m_soundPlayer_p = soundPlayer_p;
+	m_soundHandle_p = soundHandle_p;
+
+	m_skill_p = nullptr;
+	m_skillOwner_p = nullptr;
+	m_cnt = 0;
+	m_x = m_userController_p->getCharacter()->getX();
+	m_y = m_userController_p->getCharacter()->getY();
+	m_turn = 0;
+}
+
+
+COMMAND_TO_BF SkillPlayer::play(vector<vector<Cell*> >& cells) {
+	if (m_cnt == 0) {
+		if (m_isSpecial) {
+			m_skill_p = cells[m_y][m_x]->getCharacter()->getSpecialSkill();
+			m_skillOwner_p = cells[m_y][m_x]->getCharacter();
+		}
+		else {
+			m_skill_p = cells[m_y][m_x]->getSkill();
+			m_skillOwner_p = cells[m_y][m_x]->getSkillOwner();
+			m_turn = cells[m_y][m_x]->getSkillTurn();
+		}
+		m_soundPlayer_p->pushSoundQueue(m_soundHandle_p->getSkillPlaySound());
+		cells[m_y][m_x]->setAnimation(SKILL_EFFECT, 6);
+	}
+	m_cnt++;
+
+	if (m_cnt < PRE_PLAY_TIME) {
+
+	}
+	else if (m_cnt < PRE_PLAY_TIME + SKILL_GUIDE_TIME) {
+		// スキルの説明を表示中
+		if (m_cnt == PRE_PLAY_TIME) {
+			m_soundPlayer_p->pushSoundQueue(m_soundHandle_p->getSkillDescSound());
+		}
+	}
+	else {
+		// スキルの発火
+		COMMAND_TO_BF com = m_skill_p->fire(m_y, m_x, cells, m_userController_p, m_skillOwner_p);
+		cells[m_y][m_x]->setSkill(nullptr, nullptr);
+		return com;
+	}
+	return SKILL_PLAY_CONTINUE;
 }
 
 
@@ -78,7 +144,10 @@ BattleField::BattleField(SoundPlayer* soundPlayer_p) {
 			m_characterInfoButton.push_back(new CharacterInfoButton(x1, y1, x1 + INFO_WIDE, y1 + INFO_HEIGHT, m_characters[i]));
 			infoNow++;
 		}
-		move(m_characters[i], y, x, m_cells, true, false);
+		move(m_characters[i], y, x, m_cells, true, false, m_soundPlayer_p, m_soundHandle);
+	}
+	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
+		m_characterInfoButton[i]->updateCharacterInfo();
 	}
 
 	m_dice = new Dice(GAME_WIDE - applyEx(350, exX), GAME_HEIGHT - applyEx(330, exY), GAME_WIDE - applyEx(50, exX), GAME_HEIGHT - applyEx(30, exY), applyEx(6, exX), LIGHT_YELLOW, RED);
@@ -91,8 +160,9 @@ BattleField::BattleField(SoundPlayer* soundPlayer_p) {
 	m_endActionButton = new TextButton("行動終了", applyEx(1350, exX), GAME_HEIGHT - applyEx(330, exY), applyEx(1550, exX), GAME_HEIGHT - applyEx(230, exY), applyEx(6, exX), LIGHT_RED, RED);
 
 	m_alreadyAttack = false;
-	m_hangingSkill_p = nullptr;
-	m_hangingCharacterWithSkill_p = nullptr;
+	m_hangingSkill_pair = make_pair(nullptr, nullptr);
+	m_skillPlayer = nullptr;
+	m_freezeTime = 0;
 }
 
 
@@ -114,6 +184,18 @@ BattleField::~BattleField() {
 	delete m_cellInfoButton;
 	delete m_skillInfoButton;
 	delete m_endActionButton;
+	if (m_skillPlayer != nullptr) {
+		delete m_skillPlayer;
+	}
+}
+
+
+void BattleField::initCells() {
+	for (unsigned int y = 0; y < m_cells.size(); y++) {
+		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
+			m_cells[y][x]->setDamageValue(0, STUDENT);
+		}
+	}
 }
 
 
@@ -144,10 +226,10 @@ void BattleField::initController() {
 	}
 	switch (m_characters[m_activeCharacterIndex]->getGroupKind()) {
 	case STUDENT:
-		m_characterController = new StudentController(m_dice);
+		m_characterController = new StudentController(m_dice, m_soundPlayer_p, m_soundHandle);
 		break;
 	default:
-		m_characterController = new EnemyController(m_dice);
+		m_characterController = new EnemyController(m_dice, m_soundPlayer_p, m_soundHandle);
 		break;
 	}
 	m_characterController->setCharacter(m_characters[m_activeCharacterIndex]);
@@ -161,32 +243,49 @@ bool BattleField::play() {
 	m_endActionButton->off(DARK_RED);
 
 	// 各マスのダメージリセット (最初にやらないとスキルのガイド用に付けていたダメージが適用される分二重になる)
-	for (unsigned int y = 0; y < m_cells.size(); y++) {
-		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-			m_cells[y][x]->setDamageValue(0, STUDENT);
-		}
-	}
+	initCells();
 
-	// キャラの操作
-	if (m_characterController->play(m_handX, m_handY, m_cells)) {
+	playCharacterMove();
+
+	updateBattleField();
+
+	m_soundPlayer_p->play();
+
+	return false;
+}
+
+
+void BattleField::playCharacterMove() {
+	if (m_freezeTime > 0) {
+		m_freezeTime--;
+	}
+	else if (m_skillPlayer != nullptr) {
+		// スキル・必殺技の発動中
+		COMMAND_TO_BF ctb = m_skillPlayer->play(m_cells);
+		switch (ctb) {
+		case RETRY_MOVE:
+			m_alreadyAttack = false;
+			break;
+		}
+		if (ctb != SKILL_PLAY_CONTINUE) {
+			delete m_skillPlayer;
+			m_skillPlayer = nullptr;
+		}
+		initCells();
+	}
+	else if (m_characterController->play(m_handX, m_handY, m_cells)) {
+		// キャラの操作
 		Character* activeCharacter = m_characters[m_activeCharacterIndex];
 		if (!m_alreadyAttack) {
 			// 移動後の攻撃
 			setDamageCell(activeCharacter->getY(), activeCharacter->getX(), activeCharacter);
 			damageCharacterEachCell();
 			m_alreadyAttack = true;
+			initCells();
 		}
 		if (m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkill() != nullptr) {
 			// スキルの発火
-			const Skill* skill = m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkill();
-			const Character* skillOwner = m_cells[activeCharacter->getY()][activeCharacter->getX()]->getSkillOwner();
-			COMMAND_TO_BF com = skill->fire(activeCharacter->getY(), activeCharacter->getX(), m_cells, m_characterController, skillOwner);
-			switch (com) {
-			case RETRY_MOVE:
-				m_alreadyAttack = false;
-				break;
-			}
-			m_cells[activeCharacter->getY()][activeCharacter->getX()]->setSkill(nullptr, nullptr);
+			m_skillPlayer = new SkillPlayer(false, m_characterController, m_soundPlayer_p, m_soundHandle);
 		}
 		else {
 			if (activeCharacter->getGroupKind() == STUDENT) {
@@ -194,10 +293,14 @@ bool BattleField::play() {
 			}
 			if (activeCharacter->getGroupKind() != STUDENT || leftClick() == 1 && m_endActionButton->overlap(m_handX, m_handY)) {
 				nextTurn();
+				m_soundPlayer_p->pushSoundQueue(m_soundHandle->getDecideSound());
 			}
 		}
 	}
+}
 
+
+void BattleField::updateBattleField() {
 	// 各マスの処理
 	int overlapY = -1, overlapX = -1;
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
@@ -206,17 +309,18 @@ bool BattleField::play() {
 				overlapY = y;
 				overlapX = x;
 				// スキルを設置する
-				if (m_hangingSkill_p != nullptr && leftClick() == 1 && m_cells[y][x]->ableSetSkill()) {
+				if (m_hangingSkill_pair.first != nullptr && leftClick() == 1 && m_cells[y][x]->ableSetSkill() && !m_characterController->isWatingGoalSelect()) {
 					for (unsigned int i = 0; i < m_characters.size(); i++) {
-						if (m_characters[i] == m_hangingCharacterWithSkill_p) {
-							m_characters[i]->addSkillPoint(-m_hangingSkill_p->getNeedSkillPoint());
+						if (m_characters[i] == m_hangingSkill_pair.second) {
+							m_characters[i]->addSkillPoint(-m_hangingSkill_pair.second->getNeedSkillPoint());
 						}
 					}
 					for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
 						m_characterInfoButton[i]->updateCharacterInfo();
 					}
-					m_cells[y][x]->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
-					m_hangingSkill_p = nullptr;
+					m_cells[y][x]->setSkill(m_hangingSkill_pair.first, m_hangingSkill_pair.second);
+					m_hangingSkill_pair = make_pair(nullptr, nullptr);
+					m_soundPlayer_p->pushSoundQueue(m_soundHandle->getSetSkillSound());
 				}
 			}
 			m_cells[y][x]->playAnimation();
@@ -234,42 +338,58 @@ bool BattleField::play() {
 		m_cellInfoButton->setCell(nullptr);
 	}
 
-	// カーソルが重なっているスキルの情報を表示する
-	Skill* overlapSkill = nullptr;
-	const Character* overlapCharacter = nullptr;
-	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
-		overlapSkill = m_characterInfoButton[i]->getOverlapSkill(m_handX, m_handY);
-		overlapCharacter = m_characterInfoButton[i]->getCharacter();
-		if (overlapSkill != nullptr) { break; }
+	// カーソルが重なっているスキルを特定
+	pair<Skill*, const Character*> overlapSkill_pair = make_pair(nullptr, nullptr);
+	bool isSpecial = false;
+	for (unsigned int i = 0; i < m_characterInfoButton.size() && overlapSkill_pair.first == nullptr; i++) {
+		Skill* overlapSkill = m_characterInfoButton[i]->getOverlapSkill(m_handX, m_handY);
+		if (overlapSkill != nullptr) {
+			overlapSkill_pair = make_pair(overlapSkill, m_characterInfoButton[i]->getCharacter());
+		}
+		Skill* specialSkill = m_characterInfoButton[i]->getOverlapSpecial(m_handX, m_handY);
+		if (overlapSkill_pair.first == nullptr && specialSkill != nullptr) {
+			overlapSkill_pair = make_pair(specialSkill, m_characterInfoButton[i]->getCharacter());
+			isSpecial = true;
+			// 必殺技発動
+			if (leftClick() == 1 && ableSpecialSkill(overlapSkill_pair.second)) {
+				for (unsigned int i = 0; i < m_characters.size(); i++) {
+					if (m_characters[i] == overlapSkill_pair.second) {
+						m_characters[i]->addSpecialPoint(-m_characters[i]->getCharacterStatus()->getMaxSpecialPoint());
+						m_characterInfoButton[i]->updateCharacterInfo();
+						break;
+					}
+				}
+				m_skillPlayer = new SkillPlayer(true, m_characterController, m_soundPlayer_p, m_soundHandle);
+			}
+		}
 	}
-	m_skillInfoButton->setSkill(overlapSkill, overlapCharacter);
 	// スキルを手に掴む
-	if (overlapSkill != nullptr && leftClick() == 1 && overlapSkill->getNeedSkillPoint() <= overlapCharacter->getCharacterStatus()->getSkillPoint()) {
-		if (m_hangingSkill_p == overlapSkill) {
-			m_hangingSkill_p = nullptr;
+	if (overlapSkill_pair.first != nullptr && !isSpecial && leftClick() == 1 && overlapSkill_pair.first->getNeedSkillPoint() <= overlapSkill_pair.second->getCharacterStatus()->getSkillPoint() && !m_characterController->isWatingGoalSelect()) {
+		if (m_hangingSkill_pair.first == overlapSkill_pair.first) {
+			m_hangingSkill_pair = make_pair(nullptr, nullptr);
+			m_soundPlayer_p->pushSoundQueue(m_soundHandle->getDecideSound());
 		}
 		else {
-			m_hangingSkill_p = overlapSkill;
-			m_hangingCharacterWithSkill_p = overlapCharacter;
+			m_hangingSkill_pair = make_pair(overlapSkill_pair.first, overlapSkill_pair.second);
+			m_soundPlayer_p->pushSoundQueue(m_soundHandle->getHangingSound());
 		}
 	}
-	else if (m_hangingSkill_p != nullptr && leftClick() == 1) {
-		m_hangingSkill_p = nullptr;
+	else if (m_hangingSkill_pair.first != nullptr && (leftClick() == 1 || (m_characterController->isWatingGoalSelect()))) {
+		m_hangingSkill_pair = make_pair(nullptr, nullptr);
+		m_soundPlayer_p->pushSoundQueue(m_soundHandle->getDecideSound());
 	}
-	if (m_characterController->isWatingGoalSelect()) {
-		m_hangingSkill_p = nullptr;
+	// スキルの情報を表示する
+	if (m_hangingSkill_pair.first != nullptr && overlapSkill_pair.first == nullptr && m_skillInfoButton->getSkill() != m_hangingSkill_pair.first) {
+		// 持っているスキルを表示するパターン
+		m_skillInfoButton->setSkill(m_hangingSkill_pair.first, m_hangingSkill_pair.second);
 	}
-	if (m_hangingSkill_p != nullptr && overlapSkill == nullptr) {
-		m_skillInfoButton->setSkill(m_hangingSkill_p, m_hangingCharacterWithSkill_p);
+	else if (overlapSkill_pair.first != nullptr && m_skillInfoButton->getSkill() != overlapSkill_pair.first) {
+		// 重なっているスキルを表示するパターン
+		m_soundPlayer_p->pushSoundQueue(m_soundHandle->getOverlapSound());
+		m_skillInfoButton->setSkill(overlapSkill_pair.first, overlapSkill_pair.second);
 	}
-
-	// 必殺技
-	for (unsigned int i = 0; i < m_characterInfoButton.size(); i++) {
-		Skill* overlapSpecial = m_characterInfoButton[i]->getOverlapSpecial(m_handX, m_handY);
-		if (overlapSpecial != nullptr) {
-			m_skillInfoButton->setSkill(overlapSpecial, m_characterInfoButton[i]->getCharacter());
-			break;
-		}
+	else if (m_hangingSkill_pair.first == nullptr && overlapSkill_pair.first == nullptr) {
+		m_skillInfoButton->setSkill(nullptr, nullptr);
 	}
 
 	// 攻撃範囲のガイドを設定
@@ -277,9 +397,9 @@ bool BattleField::play() {
 		// キャラの移動先
 		setDamageCell(overlapY, overlapX, getActiveCharacter());
 	}
-	if (overlapY >= 0 && overlapX >= 0 && m_hangingSkill_p != nullptr) {
+	if (overlapY >= 0 && overlapX >= 0 && m_hangingSkill_pair.first != nullptr) {
 		// 設置しようとしているスキル
-		m_hangingSkill_p->setDamageCell(overlapY, overlapX, m_cells);
+		m_hangingSkill_pair.first->setDamageCell(overlapY, overlapX, m_cells);
 	}
 	else if (overlapY >= 0 && overlapX >= 0 && m_cells[overlapY][overlapX]->getSkill() != nullptr) {
 		// カーソルが重なっているスキル
@@ -293,20 +413,16 @@ bool BattleField::play() {
 	// 各キャラの状態更新
 	for (unsigned int i = 0; i < m_characters.size(); i++) {
 		m_characters[i]->updateDispHp();
-		if (overlapCharacter == m_characters[i] && overlapSkill != nullptr) {
-			m_characters[i]->setNeedSkillPoint(overlapSkill->getNeedSkillPoint());
+		if (overlapSkill_pair.second == m_characters[i] && overlapSkill_pair.first != nullptr) {
+			m_characters[i]->setNeedSkillPoint(overlapSkill_pair.first->getNeedSkillPoint());
 		}
-		else if (m_hangingCharacterWithSkill_p == m_characters[i] && m_hangingSkill_p != nullptr) {
-			m_characters[i]->setNeedSkillPoint(m_hangingSkill_p->getNeedSkillPoint());
+		else if (m_hangingSkill_pair.second == m_characters[i] && m_hangingSkill_pair.first != nullptr) {
+			m_characters[i]->setNeedSkillPoint(m_hangingSkill_pair.first->getNeedSkillPoint());
 		}
 		else {
 			m_characters[i]->setNeedSkillPoint(0);
 		}
 	}
-
-	m_soundPlayer_p->play();
-
-	return false;
 }
 
 
@@ -336,7 +452,23 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 void BattleField::damageCharacterEachCell() {
 	for (unsigned int y = 0; y < m_cells.size(); y++) {
 		for (unsigned int x = 0; x < m_cells[y].size(); x++) {
-			m_cells[y][x]->damageCharacter();
+			if (m_cells[y][x]->damageCharacter()) {
+				m_freezeTime = ATTACK_FREEZE_TIME;
+			}
 		}
 	}
+}
+
+
+bool BattleField::ableSpecialSkill(const Character* character) {
+	if (m_skillPlayer != nullptr) {
+		return false;
+	}
+	if (m_characterController->isWatingGoalSelect() || m_characterController->getCharacter() != character) {
+		return false;
+	}
+	if (character->getCharacterStatus()->getSpecialPoint() < character->getCharacterStatus()->getMaxSpecialPoint()) {
+		return false;
+	}
+	return true;
 }

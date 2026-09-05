@@ -38,13 +38,13 @@ Button::Button(int x1, int y1, int x2, int y2, int edgeLength, int innerColor, i
 void Button::draw(int handX, int handY, bool fill) const {
 	int color = m_ableClick ? m_innerColor : m_offColor;
 	if (fill) {
-		if (overlap(handX, handY)) {
+		if (overlap(handX, handY) && m_edgeColor != -1) {
 			DrawBox(m_x1 - m_edgeLength, m_y1 - m_edgeLength, m_x2 + m_edgeLength, m_y2 + m_edgeLength, m_edgeColor, TRUE);
 		}
 		DrawBox(m_x1, m_y1, m_x2, m_y2, color, TRUE);
 	}
 	else {
-		if (overlap(handX, handY)) {
+		if (overlap(handX, handY) && m_edgeColor != -1) {
 			DrawBox(m_x1, m_y1, m_x2, m_y2, m_edgeColor, fill);
 		}
 		else {
@@ -162,6 +162,7 @@ Skill* CharacterInfoButton::getOverlapSpecial(int handX, int handY) const {
 	if (m_specialAttackButton->overlap(handX, handY)) {
 		return m_character_p->getSpecialSkill();
 	}
+	return nullptr;
 }
 
 
@@ -274,7 +275,7 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 * ƒXƒLƒ‹î•ñ‚Ì—Ìˆæ
 */
 SkillInfoButton::SkillInfoButton(int x1, int y1, int x2, int y2, const Skill* skill_p) :
-	Button(x1, y1, x2, y2, 10, GRAY2, RED)
+	Button(x1, y1, x2, y2, 10, GRAY2, -1)
 {
 	m_skill_p = skill_p;
 }

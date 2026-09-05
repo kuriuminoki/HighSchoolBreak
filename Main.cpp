@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	SetMainWindowText("High School Break!!"); // ウィンドウの名前
 	SetUseDirectInputFlag(TRUE);
 	//SetMousePoint(320, 240);//マウスカーソルの初期位置
-	SetAlwaysRunFlag(TRUE);//画面を常にアクティブ
+	SetAlwaysRunFlag(FALSE);//画面を常にアクティブ
 
 	// 画像の拡大処理方式
 	//const int DRAW_MODE = DX_DRAWMODE_BILINEAR;

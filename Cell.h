@@ -11,6 +11,7 @@ class CharacterGraphs;
 class Skill;
 
 enum GROUP_KIND;
+enum EFFECT_KIND;
 
 
 enum CELL_KIND {
@@ -61,6 +62,8 @@ public:
 	inline void setMarkingColor(int markingColor) { m_markingColor = markingColor; }
 	void setDamageValue(int damageValue, GROUP_KIND damageGroupKind);
 
+	void setAnimation(EFFECT_KIND kind, int frameCnt);
+
 	void playAnimation();
 
 	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const;
@@ -69,7 +72,7 @@ public:
 
 	bool ableSetSkill(); // スキルを設置できるマスかどうか
 
-	void damageCharacter();
+	bool damageCharacter(); // キャラにダメージ。起きたらtrue
 
 	void nextTurn(); // 次のターンにする
 

@@ -11,6 +11,7 @@
 #include "DxLib.h"
 
 #include <string>
+#include <sstream>
 
 
 using namespace std;
@@ -47,6 +48,69 @@ void BattleFieldDrawer::draw() {
 
 	DrawBox(0, 0, GAME_WIDE, GAME_HEIGHT, GRAY, TRUE);
 
+	drawCellsAndCharacters();
+
+
+	// キャラ情報の描画
+	const vector<CharacterInfoButton*> characterInfoButton = m_battleField_p->getCharacterInfoButton();
+	for (unsigned int i = 0; i < characterInfoButton.size(); i++) {
+		characterInfoButton[i]->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
+	}
+
+	// マス情報の描画
+	m_battleField_p->getCellInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
+
+	// スキル情報の描画
+	m_battleField_p->getSkillInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
+
+	// サイコロの描画
+	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);
+
+	// ボタンの描画
+	m_battleField_p->getEndActionButton()->draw(m_handX, m_handY, true, m_middleFont, BLACK);
+
+	if (m_battleField_p->getHangingSkill() != nullptr) {
+		DrawRotaGraph(m_handX, m_handY, 0.5 * m_exX, 0.0, m_characterGraphs->getSkillIconGraphs(m_battleField_p->getHangingSkill()->getSkillCategory()), TRUE);
+	}
+
+	// スキル発動中
+	const SkillPlayer* skillPlayer = m_battleField_p->getSkillPlayer();
+	if (skillPlayer != nullptr) {
+		bool isSpecial = skillPlayer->isSpecial();
+		int cnt = skillPlayer->getCnt();
+		if (skillPlayer->isPrePlaySpan()) {
+
+		}
+		else {
+			int color = isSpecial ? LIGHT_RED : LIGHT_YELLOW;
+			const int y1 = GAME_HEIGHT / 2 - applyEx(200, m_exY);
+			const int y2 = GAME_HEIGHT / 2 + applyEx(200, m_exY);
+			DrawBox(0, y1, GAME_WIDE, y2, color, TRUE);
+			int x = applyEx(100, m_exX);
+			int fontSize = 0;
+			GetFontStateToHandle(NULL, &fontSize, NULL, m_middleFont);
+			x = max(x, x + (30 - cnt) * 150);
+			if (isSpecial) {
+				const int dx = applyEx(300, m_exX);
+				int handle = m_characterGraphs->getSpecialCharacterGraphs(skillPlayer->getSkillOwner()->getCharacterProfile()->getCharacterIconGraphNum());
+				DrawRotaGraph(dx, GAME_HEIGHT / 2, 1.0, 0.0, handle, TRUE);
+				GetGraphSize(handle, &x, NULL);
+				x = x / 2 + dx;
+				x = max(x, x + (30 - cnt) * 150);
+			}
+			DrawStringToHandle(x, y1 + fontSize, skillPlayer->getSkill()->getSkillName().c_str(), BLACK, m_middleFont);
+			DrawStringToHandle(x + fontSize, y1 + applyEx(fontSize, 2.5), skillPlayer->getSkill()->getSkillDesc().c_str(), BLACK, m_middleFont);
+			string bonusDesc = skillPlayer->getSkill()->getSkillBonusDesc(skillPlayer->getTurn());
+			if (!bonusDesc.empty()) {
+				DrawStringToHandle(x + fontSize, y1 + applyEx(fontSize, 4), ("ボーナス：" + bonusDesc).c_str(), RED, m_middleFont);
+			}
+			
+		}
+	}
+}
+
+
+void BattleFieldDrawer::drawCellsAndCharacters() {
 	vector<const Character*> dispCharacter;
 	vector<const Character*> dispHpBarCharacter;
 	vector<const EffectAnimation*> dispEffect;
@@ -105,27 +169,5 @@ void BattleFieldDrawer::draw() {
 		int dispHp = dispHpBarCharacter[i]->getCharacterStatus()->getDispHp();
 		int maxHp = dispHpBarCharacter[i]->getCharacterStatus()->getMaxHp();
 		drawHpBar(x - (int)(wide * 0.1 / 2) + applyEx(10, m_exX), y, x - (int)(wide * 0.1 / 2) + applyEx(80, m_exX), y + applyEx(10, m_exY), hp, dispHp, maxHp);
-	}
-
-	// キャラ情報の描画
-	const vector<CharacterInfoButton*> characterInfoButton = m_battleField_p->getCharacterInfoButton();
-	for (unsigned int i = 0; i < characterInfoButton.size(); i++) {
-		characterInfoButton[i]->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
-	}
-
-	// マス情報の描画
-	m_battleField_p->getCellInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
-
-	// スキル情報の描画
-	m_battleField_p->getSkillInfoButton()->draw(m_handX, m_handY, m_characterGraphs, m_smallFont);
-
-	// サイコロの描画
-	m_battleField_p->getDice()->draw(m_handX, m_handY, m_font, BLACK);
-
-	// ボタンの描画
-	m_battleField_p->getEndActionButton()->draw(m_handX, m_handY, true, m_middleFont, BLACK);
-
-	if (m_battleField_p->getHangingSkill() != nullptr) {
-		DrawRotaGraph(m_handX, m_handY, 0.5 * m_exX, 0.0, m_characterGraphs->getSkillIconGraphs(m_battleField_p->getHangingSkill()->getSkillCategory()), TRUE);
 	}
 }

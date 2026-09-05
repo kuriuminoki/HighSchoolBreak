@@ -6,6 +6,9 @@
 #include <utility>
 
 
+enum COMMAND_TO_BF;
+
+
 class Cell;
 class CellInfoButton;
 class Character;
@@ -25,12 +28,57 @@ class BattleFieldSoundHandle {
 private:
 	int m_decideSound;
 	int m_overlapSound;
+	int m_skillPlaySound;
+	int m_skillDescSound;
+	int m_specialDescSound;
+	int m_hangingSound;
+	int m_setSkillSound;
+	int m_moveSound;
 public:
 	BattleFieldSoundHandle();
 	~BattleFieldSoundHandle();
 
 	inline int getDecideSound() const { return m_decideSound; }
 	inline int getOverlapSound() const { return m_overlapSound; }
+	inline int getSkillPlaySound() const { return m_skillPlaySound; }
+	inline int getSkillDescSound() const { return m_skillDescSound; }
+	inline int getSpecialDescSound() const { return m_specialDescSound; }
+	inline int getHangingSound() const { return m_hangingSound; }
+	inline int getSetSkillSound() const { return m_setSkillSound; }
+	inline int getMoveSound() const { return m_moveSound; }
+};
+
+
+/*
+* スキル発動処理
+*/
+class SkillPlayer {
+private:
+	const int PRE_PLAY_TIME = 60; // スキル発動前の時間
+	const int SKILL_GUIDE_TIME = 180; // スキルの詳細を表示する時間
+
+	bool m_isSpecial; // 必殺技ならtrue
+	CharacterController* m_userController_p;
+	SoundPlayer* m_soundPlayer_p;
+	const BattleFieldSoundHandle* m_soundHandle_p;
+
+	const Skill* m_skill_p;
+	const Character* m_skillOwner_p;
+	int m_cnt;
+	int m_x, m_y;
+	int m_turn;
+
+public:
+	SkillPlayer(bool isSpecial, CharacterController* userController, SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p);
+
+	COMMAND_TO_BF play(std::vector<std::vector<Cell*> >& cells);
+
+	inline const Skill* getSkill() const { return m_skill_p; }
+	inline const Character* getSkillOwner() const { return m_skillOwner_p; }
+	inline int getTurn() const { return m_turn; }
+	inline bool isSpecial() const { return m_isSpecial; }
+	int getCnt() const { return isPrePlaySpan() ? m_cnt : m_cnt - PRE_PLAY_TIME; }
+	inline bool isPrePlaySpan() const { return m_cnt < PRE_PLAY_TIME; }
 };
 
 
@@ -39,6 +87,8 @@ public:
 */
 class BattleField {
 private:
+	const int ATTACK_FREEZE_TIME = 60; // 攻撃時の時間停止時間
+
 	SoundPlayer* m_soundPlayer_p;
 
 	int m_columnSize; // 横サイズ
@@ -56,8 +106,9 @@ private:
 	int m_activeCharacterIndex; // 今行動中のキャラ
 	bool m_alreadyAttack; // 攻撃したか
 	CharacterController* m_characterController; // キャラ移動用
-	Skill* m_hangingSkill_p; // 今設置しようとしているスキル
-	const Character* m_hangingCharacterWithSkill_p; // 今設置しようとしているスキルの所持キャラ
+	std::pair<Skill*, const Character*> m_hangingSkill_pair; // 今設置しようとしているスキルとその所持キャラ
+	SkillPlayer* m_skillPlayer;
+	int m_freezeTime;
 
 public:
 	BattleField(SoundPlayer* soundPlayer_p);
@@ -71,7 +122,8 @@ public:
 	inline const SkillInfoButton* getSkillInfoButton() const { return m_skillInfoButton; }
 	inline const Dice* getDice() const { return m_dice; }
 	inline const TextButton* getEndActionButton() const { return m_endActionButton; }
-	inline const Skill* getHangingSkill() const { return m_hangingSkill_p; }
+	inline const Skill* getHangingSkill() const { return m_hangingSkill_pair.first; }
+	inline const SkillPlayer* getSkillPlayer() const { return m_skillPlayer; }
 
 	// 特殊な処理をするゲッタ
 	inline const Character* getActiveCharacter() const { return m_characters[m_activeCharacterIndex]; }
@@ -79,10 +131,15 @@ public:
 	bool play();
 
 private:
+	void playCharacterMove();
+	void updateBattleField();
+
+	void initCells();
 	void nextTurn();
 	void initController(); // 操作キャラの種類に合わせてControllerを作成
 	void setDamageCell(int y, int x, const Character* character_p); // 座標y, xから攻撃したときの範囲を設定
 	void damageCharacterEachCell(); // 各セルについて設定されたダメージをキャラに適用
+	bool ableSpecialSkill(const Character* character); // 必殺技を発動できるか判定
 };
 
 

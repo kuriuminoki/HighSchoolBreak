@@ -1,9 +1,11 @@
 #include "CharacterController.h"
+#include "BattleField.h"
 #include "Cell.h"
 #include "Character.h"
 #include "Control.h"
 #include "Dice.h"
 #include "Define.h"
+#include "Sound.h"
 
 #include <queue>
 
@@ -12,7 +14,7 @@ using namespace std;
 
 
 // ƒLƒƒƒ‰‚ÌˆÚ“® (warp=true‚È‚çuŠÔˆÚ“®)
-bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells, bool warp, bool ableAddSkillPoint) {
+bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells, bool warp, bool ableAddSkillPoint,	SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p) {
 	int goalDispX = (cells[gy][gx]->getX1() + cells[gy][gx]->getX2()) / 2;
 	int goalDispY = (cells[gy][gx]->getY1() + cells[gy][gx]->getY2()) / 2;
 
@@ -53,6 +55,7 @@ bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells,
 		}
 
 		if (character_p->getDispY() == goalDispY && character_p->getDispX() == goalDispX) {
+			soundPlayer_p->pushSoundQueue(soundHandle_p->getMoveSound());
 			return true;
 		}
 	}
@@ -63,8 +66,10 @@ bool move(Character* character_p, int gy, int gx, vector<vector<Cell*> >& cells,
 /*
 * ƒLƒƒƒ‰‘€ì
 */
-CharacterController::CharacterController(Dice* dice_p) {
+CharacterController::CharacterController(Dice* dice_p, SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p) {
 	m_dice_p = dice_p;
+	m_soundPlayer_p = soundPlayer_p;
+	m_soundHandle_p = soundHandle_p;
 	m_ableAddSkillPoint = true;
 }
 
@@ -143,7 +148,9 @@ void CharacterController::searchGoalRoute(int gy, int gx, vector<vector<Cell*> >
 			break;
 		}
 	}
-	m_track.push_back(make_pair(sy, sx));
+	if (m_track.empty()) {
+		m_track.push_back(make_pair(sy, sx));
+	}
 
 	// ‚¨‘|œ
 	for (unsigned int i = 0; i < m_routeMemo.size(); i++) {
@@ -156,8 +163,8 @@ void CharacterController::searchGoalRoute(int gy, int gx, vector<vector<Cell*> >
 /*
 * ¶“k‘€ì
 */
-StudentController::StudentController(Dice* dice_p):
-	CharacterController(dice_p)
+StudentController::StudentController(Dice* dice_p, SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p):
+	CharacterController(dice_p, soundPlayer_p, soundHandle_p)
 {
 	m_ableFinish = false;
 }
@@ -185,7 +192,7 @@ bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*
 			m_dice_p->off(DARK_YELLOW);
 		}
 	}
-	if (!m_dice_p->getAbleClick() && !m_ableFinish) {
+	if (!m_dice_p->getAbleClick() && !m_ableFinish && m_track.empty()) {
 		if (m_dice_p->play() && m_routeMemo.empty()) {
 			// •—Dæ’Tõ‚ÅŠeƒ}ƒX‚Ö‚ÌÅ’Zƒ‹[ƒg‚ğŒŸõ
 			searchAllTrack(m_dice_p->getValue(), cells);
@@ -203,7 +210,7 @@ bool StudentController::play(int handX, int handY, std::vector<std::vector<Cell*
 	}
 
 	if (!m_track.empty()) {
-		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
+		if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint, m_soundPlayer_p, m_soundHandle_p)) {
 			m_track.pop_back();
 		}
 		if (m_track.empty()) {
@@ -233,8 +240,8 @@ void StudentController::moveSpecificDistance(int distance, std::vector<std::vect
 /*
 * “G‘€ì
 */
-EnemyController::EnemyController(Dice* dice_p):
-	CharacterController(dice_p)
+EnemyController::EnemyController(Dice* dice_p, SoundPlayer* soundPlayer_p, const BattleFieldSoundHandle* soundHandle_p):
+	CharacterController(dice_p, soundPlayer_p, soundHandle_p)
 {
 	m_state = INIT_DICE;
 }
@@ -285,7 +292,7 @@ bool EnemyController::play(int handX, int handY, std::vector<std::vector<Cell*> 
 		if (m_track.empty()) {
 			return true;
 		}
-		else if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint)) {
+		else if (move(m_character_p, m_track[m_track.size() - 1].first, m_track[m_track.size() - 1].second, cells, false, m_ableAddSkillPoint, m_soundPlayer_p, m_soundHandle_p)) {
 			m_track.pop_back();
 			if (m_track.empty()) {
 				for (unsigned int y = 0; y < cells.size(); y++) {

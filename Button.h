@@ -161,6 +161,9 @@ private:
 public:
 	SkillInfoButton(int x1, int y1, int x2, int y2, const Skill* skill_p);
 
+	// ゲッタ
+	inline const Skill* getSkill() const { return m_skill_p; }
+
 	// セッタ
 	inline void setSkill(const Skill* skill_p, const Character* character_p) { m_skill_p = skill_p; m_character_p = character_p; }
 

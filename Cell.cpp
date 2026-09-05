@@ -34,6 +34,14 @@ void Cell::setDamageValue(int damageValue, GROUP_KIND damageGroupKind) {
 }
 
 
+void Cell::setAnimation(EFFECT_KIND kind, int frameCnt) {
+	if (m_effectAnimation != nullptr) {
+		delete m_effectAnimation;
+	}
+	m_effectAnimation = new EffectAnimation(kind, (m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, frameCnt);
+}
+
+
 void Cell::playAnimation() {
 	if (m_effectAnimation == nullptr) {
 		return;
@@ -90,15 +98,15 @@ bool Cell::ableSetSkill() {
 }
 
 
-void Cell::damageCharacter() {
+bool Cell::damageCharacter() {
 	if (m_damageValue == 0 || m_character_p == nullptr) {
-		return;
+		return false;
 	}
 	if (m_damageValue < 0 && m_character_p->getGroupKind() != m_damageGroupKind) {
-		return;
+		return false;
 	}
 	if (m_damageValue > 0 && m_character_p->getGroupKind() == m_damageGroupKind) {
-		return;
+		return false;
 	}
 	// ここで防御力を考慮
 	if (m_damageValue > 0) { // 回復にバフ・デバフはかからない
@@ -108,10 +116,8 @@ void Cell::damageCharacter() {
 		}
 	}
 	m_character_p->damage(m_damageValue);
-	if (m_effectAnimation != nullptr) {
-		delete m_effectAnimation;
-	}
-	m_effectAnimation = new EffectAnimation(ATARI, (m_x1 + m_x2) / 2, (m_y1 + m_y2) / 2, 6);
+	setAnimation(ATARI_EFFECT, 6);
+	return true;
 }
 
 
