@@ -3,6 +3,14 @@
 
 
 #include "Skill.h"
+#include <string>
+
+
+class AttackInfoCreator;
+class CsvReader;
+
+
+Skill* createSpecial(std::string specialName, CsvReader* csvReader, AttackInfoCreator* attackInfoCreator);
 
 
 class AttackSpecialSkill : public AdditionalAttackSkill

@@ -1,4 +1,5 @@
 #include "BattleField.h"
+#include "AttackInfo.h"
 #include "Button.h"
 #include "Cell.h"
 #include "Character.h"
@@ -126,17 +127,14 @@ BattleField::BattleField(SoundPlayer* soundPlayer_p) {
 	// キャラ
 	int characterSize = 6;
 	const char* lastNames[] = { "アカツキ", "トウノ", "タキノ", "モンスター", "モンスター", "モンスター" };
-	const char* firstNames[] = { "リョウヤ", "ヒナミ", "エイリ", "A", "B", "C" };
 	int infoNow = 0;
 	const int INFO_WIDE = applyEx(250, exX);
 	const int INFO_HEIGHT = applyEx(360, exX);
 	for (int i = 0; i < characterSize; i++) {
-		CharacterProfile* profile = new CharacterProfile(i, lastNames[i], firstNames[i]);
-		CharacterStatus* status = new CharacterStatus();
 		int x = i > 2 ? 17 + (i % 3) : i % 3;
 		int y = i > 2 ? 9 : 0;
 		GROUP_KIND groupKind = i > 2 ? MONSTER : STUDENT;
-		m_characters.push_back(new Character(profile, status, x, y, groupKind));
+		m_characters.push_back(new Character(i, lastNames[i], x, y, groupKind));
 		m_cells[y][x]->setCharacter(m_characters[i]);
 		if (groupKind == STUDENT) {
 			int x1 = applyEx(30, exX) + (INFO_WIDE + applyEx(30, exX)) * i;
@@ -409,6 +407,10 @@ void BattleField::updateBattleField() {
 		// カーソルが重なっているキャラ
 		setDamageCell(overlapY, overlapX, m_cells[overlapY][overlapX]->getCharacter());
 	}
+	else if (isSpecial) {
+		// 必殺技
+		overlapSkill_pair.first->setDamageCell(getActiveCharacter()->getY(), getActiveCharacter()->getX(), m_cells);
+	}
 
 	// 各キャラの状態更新
 	for (unsigned int i = 0; i < m_characters.size(); i++) {
@@ -430,13 +432,13 @@ void BattleField::setDamageCell(int y, int x, const Character* character_p) {
 	if (y < 0 || x < 0 || y >= (int)m_cells.size() || x >= (int)m_cells[0].size()) {
 		return;
 	}
-	const vector<pair<int, pair<int, int> > > targets = character_p->getAttackInfo()->getTargets();
+	const vector<AttackElement*> targets = character_p->getAttackInfo()->getAttackElement();
 	int attackBuffValue = character_p->calcAttackBuffValue();
 	for (unsigned int i = 0; i < targets.size(); i++) {
-		int ty = y + targets[i].second.first;
-		int tx = x + targets[i].second.second;
+		int ty = y + targets[i]->getDy();
+		int tx = x + targets[i]->getDx();
 		if (ty >= 0 && ty < m_cells.size() && tx >= 0 && tx < m_cells[0].size()) {
-			int attackValue = targets[i].first;
+			int attackValue = targets[i]->getDamage();
 			if (attackValue > 0) { // 回復にバフ・デバフはかからない
 				attackValue += attackBuffValue;
 				if (attackValue < 0) {

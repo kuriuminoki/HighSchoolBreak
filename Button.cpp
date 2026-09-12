@@ -249,7 +249,8 @@ void CellInfoButton::draw(int handX, int handY, const CharacterGraphs* character
 		int skillPoint = c->getCharacterStatus()->getSkillPoint();
 		int maxSkillPoint = c->getCharacterStatus()->getMaxSkillPoint();
 		drawSkillPointBar(m_x1 + indentSize + applyEx(5, m_exX), m_y1 + fontSize * 3 + applyEx(5, m_exY), m_x1 + indentSize + applyEx(200, m_exX), m_y1 + fontSize * 3 + applyEx(15, m_exY), skillPoint, maxSkillPoint, 0);
-		drawBuffs(m_x1, m_y1 + fontSize * 4, 2.0, c->getBuffs(), characterGraphs, 8);
+		drawBuffs(m_x1, m_y1 + (int)(fontSize * 3.5), 2.0, c->getBuffs(), characterGraphs, 8);
+		drawChart((m_x1 + m_x2) / 2, m_y1 + (m_y2 - m_y1) * 2 / 3, 1.0, font, LIGHT_BLUE, BLUE, c->getCharacterStatus());
 	}
 	else if (skill != nullptr) {
 		// スキルがあるマス

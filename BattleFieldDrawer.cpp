@@ -117,10 +117,16 @@ void BattleFieldDrawer::drawCellsAndCharacters() {
 
 	// 各マスの描画
 	const vector<vector<Cell*> > cells = m_battleField_p->getCells();
+	int maxDamageValue = 0;
+	for (unsigned int y = 0; y < cells.size(); y++) {
+		for (unsigned int x = 0; x < cells[y].size(); x++) {
+			maxDamageValue = max(maxDamageValue, cells[y][x]->getDamageValue());
+		}
+	}
 	for (unsigned int y = 0; y < cells.size(); y++) {
 		for (unsigned int x = 0; x < cells[y].size(); x++) {
 			// マスの描画
-			cells[y][x]->draw(m_handX, m_handY, true, m_characterGraphs, m_smallFont);
+			cells[y][x]->draw(m_handX, m_handY, true, m_characterGraphs, m_smallFont, maxDamageValue);
 			// マス上にいるキャラ
 			if (cells[y][x]->getCharacter() != nullptr) {
 				dispCharacter.push_back(cells[y][x]->getCharacter());

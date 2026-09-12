@@ -1,16 +1,66 @@
 #include "Skill.h"
+#include "AttackInfo.h"
 #include "Cell.h"
 #include "Character.h"
 #include "CharacterBuff.h"
 #include "CharacterController.h"
+#include "CsvReader.h"
 #include "Graphs.h"
 
+#include "DxLib.h"
 
 #include <algorithm>
+#include <map>
 #include <sstream>
 
 
 using namespace std;
+
+
+/*
+* csvファイルから読み込んだ情報を受け取ってスキルを作成
+*/
+Skill* createSkill(string skillName, CsvReader* csvReader, AttackInfoCreator* attackInfoCreator) {
+	Skill* res = nullptr;
+	map<string, string> skillData = csvReader->findOne("name", skillName.c_str());
+	if (skillData.empty()) {
+		res = new MoveWithoutDiceSkill(3, 1);
+		skillName = "skill not found: " + skillName;
+		res->setSkillName(skillName);
+		ErrorLogAdd(skillName.c_str());
+		return res;
+	}
+
+	string className = skillData["class"];
+	int needSkillPoint = stoi(skillData["needSkillPoint"]);
+	if (className == "MoveWithoutDiceSkill") {
+		res = new MoveWithoutDiceSkill(needSkillPoint, stoi(skillData["param1"]));
+	}
+	else if (className == "AdditionalAttackSkill") {
+		string baseDamage = skillData["param1"];
+		res = new AdditionalAttackSkill(needSkillPoint, attackInfoCreator->createAttackInfo(skillName, baseDamage.empty() ? 0 : stoi(baseDamage)));
+	}
+	else if (className == "DefenseSkill") {
+		res = new DefenseSkill(needSkillPoint, stoi(skillData["param1"]));
+	}
+	else if (className == "AttackBuffSkill") {
+		res = new AttackBuffSkill(needSkillPoint, stoi(skillData["param1"]), stoi(skillData["param2"]));
+	}
+	else if (className == "SpeedBuffSkill") {
+		res = new SpeedBuffSkill(needSkillPoint, stoi(skillData["param1"]), stoi(skillData["param2"]));
+	}
+	else if (className == "DefenseBuffSkill") {
+		res = new DefenseBuffSkill(needSkillPoint, stoi(skillData["param1"]), stoi(skillData["param2"]));
+	}
+	else {
+		res = new MoveWithoutDiceSkill(3, 1);
+		skillName = "class not found: " + className;
+		ErrorLogAdd(skillName.c_str());
+	}
+
+	res->setSkillName(skillName);
+	return res;
+}
 
 
 /*
@@ -78,7 +128,7 @@ AdditionalAttackSkill::AdditionalAttackSkill(int needSkillPoint, AttackInfo* att
 	m_needSkillPoint = needSkillPoint;
 	m_attackInfo = attackInfo;
 	m_skillCategory = SKILL_CATEGORY::ATTACK_SKILL;
-	if (attackInfo->getTargets()[0].first < 0) {
+	if (attackInfo->getAttackElement()[0]->getDamage() < 0) {
 		m_skillCategory = SKILL_CATEGORY::CURE_SKILL;
 	}
 }
@@ -90,11 +140,11 @@ AdditionalAttackSkill::~AdditionalAttackSkill() {
 
 
 string AdditionalAttackSkill::getSkillDesc() const {
-	const vector<pair<int, pair<int, int> > > targets = m_attackInfo->getTargets();
-	int maxDamage = targets[0].first, minDamage = targets[0].first;
+	const vector<AttackElement*> targets = m_attackInfo->getAttackElement();
+	int maxDamage = targets[0]->getDamage(), minDamage = targets[0]->getDamage();
 	for (unsigned int i = 1; i < targets.size(); i++) {
-		maxDamage = max(maxDamage, targets[i].first);
-		minDamage = min(minDamage, targets[i].first);
+		maxDamage = max(maxDamage, targets[i]->getDamage());
+		minDamage = min(minDamage, targets[i]->getDamage());
 	}
 
 	ostringstream oss;
@@ -139,7 +189,7 @@ void AdditionalAttackSkill::setDamageCell(int y, int x, std::vector<std::vector<
 
 
 void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::vector<Cell*> >& cells, GROUP_KIND groupKind, bool attack, const Character* skillOwner) const {
-	const vector<pair<int, pair<int, int> > > targets = m_attackInfo->getTargets();
+	const vector<AttackElement*> targets = m_attackInfo->getAttackElement();
 	int bonus = calcTurnBonus(cells[y][x]->getSkillTurn());
 	if (m_skillCategory == CURE_SKILL) {
 		bonus *= -1;
@@ -149,13 +199,13 @@ void AdditionalAttackSkill::putAttackInfoToCells(int y, int x, std::vector<std::
 		penalty = 2; // 相手のスキルなら威力半減
 	}
 	for (unsigned int i = 0; i < targets.size(); i++) {
-		int ty = y + targets[i].second.first;
-		int tx = x + targets[i].second.second;
+		int ty = y + targets[i]->getDy();
+		int tx = x + targets[i]->getDx();
 		if (ty >= 0 && ty < cells.size() && tx >= 0 && tx < cells[0].size()) {
 			// TODO: スキルにバフ・デバフをかけるならここに処理を書く
-			int damage = (targets[i].first + bonus) / penalty;
+			int damage = (targets[i]->getDamage() + bonus) / penalty;
 			if (damage == 0) {
-				damage = targets[i].first / abs(targets[i].first); // 攻撃なら1, 回復なら-1 が最低効果
+				damage = targets[i]->getDamage() / abs(targets[i]->getDamage()); // 攻撃なら1, 回復なら-1 が最低効果
 			}
 			cells[ty][tx]->setDamageValue(damage, groupKind);
 			if (attack) {
@@ -174,21 +224,21 @@ int AdditionalAttackSkill::calcTurnBonus(int turn) const {
 /*
 * 踏んだ敵にダメージを与える(罠)スキル
 */
-DefenceSkill::DefenceSkill(int needSkillPoint, int damage) {
+DefenseSkill::DefenseSkill(int needSkillPoint, int damage) {
 	m_needSkillPoint = needSkillPoint;
 	m_damage = damage;
-	m_skillCategory = SKILL_CATEGORY::DEFENCE_SKILL;
+	m_skillCategory = SKILL_CATEGORY::DEFENSE_SKILL;
 }
 
 
-string DefenceSkill::getSkillDesc() const {
+string DefenseSkill::getSkillDesc() const {
 	ostringstream oss;
 	oss << "止まったキャラが" << m_damage << "ダメージ受ける。";
 	return oss.str();
 }
 
 
-std::string DefenceSkill::getSkillBonusDesc(int turn) const {
+std::string DefenseSkill::getSkillBonusDesc(int turn) const {
 	if (calcTurnBonus(turn) == 0) { return ""; }
 	ostringstream oss;
 	oss << "受けるダメージがさらに" << calcTurnBonus(turn) << "増加する。";
@@ -196,9 +246,10 @@ std::string DefenceSkill::getSkillBonusDesc(int turn) const {
 }
 
 
-COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
+COMMAND_TO_BF DefenseSkill::fire(int y, int x, std::vector<std::vector<Cell*> >& cells, CharacterController* character_controller, const Character* skillOwner) const {
 	int damage = m_damage + calcTurnBonus(cells[y][x]->getSkillTurn());
-	if (isGroupPenalty(y, x, cells, skillOwner)) {
+	if (!isGroupPenalty(y, x, cells, skillOwner)) {
+		// 自チームのスキルならダメージ半減(攻撃系とは逆)
 		damage = max(1, damage / 2);
 	}
 	cells[y][x]->setDamageValue(damage, NOT_ANY_GROUP);
@@ -207,7 +258,7 @@ COMMAND_TO_BF DefenceSkill::fire(int y, int x, std::vector<std::vector<Cell*> >&
 }
 
 
-int DefenceSkill::calcTurnBonus(int turn) const {
+int DefenseSkill::calcTurnBonus(int turn) const {
 	return min(turn, m_damage * 2);
 }
 

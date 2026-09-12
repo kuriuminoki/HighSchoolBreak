@@ -93,6 +93,12 @@
     <ClCompile Include="SpecialSkill.cpp">
       <Filter>ソース ファイル\Api</Filter>
     </ClCompile>
+    <ClCompile Include="CsvReader.cpp">
+      <Filter>ソース ファイル\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackInfo.cpp">
+      <Filter>ソース ファイル\Domain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -145,6 +151,12 @@
     </ClInclude>
     <ClInclude Include="SpecialSkill.h">
       <Filter>ヘッダー ファイル\Api</Filter>
+    </ClInclude>
+    <ClInclude Include="CsvReader.h">
+      <Filter>ヘッダー ファイル\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackInfo.h">
+      <Filter>ヘッダー ファイル\Domain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

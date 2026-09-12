@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AttackInfo.cpp" />
     <ClCompile Include="BattleField.cpp" />
     <ClCompile Include="BattleFieldDrawer.cpp" />
     <ClCompile Include="Brain.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="CharacterBuff.cpp" />
     <ClCompile Include="CharacterController.cpp" />
     <ClCompile Include="Control.cpp" />
+    <ClCompile Include="CsvReader.cpp" />
     <ClCompile Include="Define.cpp" />
     <ClCompile Include="Dice.cpp" />
     <ClCompile Include="DrawUtils.cpp" />
@@ -160,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AttackInfo.h" />
     <ClInclude Include="BattleField.h" />
     <ClInclude Include="BattleFieldDrawer.h" />
     <ClInclude Include="Brain.h" />
@@ -169,6 +172,7 @@
     <ClInclude Include="CharacterBuff.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="Control.h" />
+    <ClInclude Include="CsvReader.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Dice.h" />
     <ClInclude Include="DrawUtils.h" />

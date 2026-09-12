@@ -20,7 +20,7 @@ enum CHARACTER_NUM {
 // アイコン画像の使い分け用
 enum SKILL_CATEGORY {
 	ATTACK_SKILL,			// 攻撃
-	DEFENCE_SKILL,		// 防御
+	DEFENSE_SKILL,		// 防御
 	CURE_SKILL,			// 回復
 	MOVE_SKILL,			// 移動
 	OTHER_SKILL,			// その他

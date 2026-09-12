@@ -51,6 +51,7 @@ public:
 	inline const EffectAnimation* getEffectAnimation() const { return m_effectAnimation; }
 	inline int getMarkingColor() const { return m_markingColor; }
 	inline int getSkillTurn() const { return m_skillTurn; }
+	inline int getDamageValue() const { return m_damageValue; }
 
 	// セッタ
 	inline void setCharacter(Character* character_p) { m_character_p = character_p; }
@@ -66,7 +67,7 @@ public:
 
 	void playAnimation();
 
-	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const;
+	void draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font, int maxDamageValue) const;
 
 	bool ableMoving(); // 通過できるマスかどうか
 

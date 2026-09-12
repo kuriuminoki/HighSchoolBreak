@@ -8,6 +8,7 @@
 
 class CharacterBuff;
 class CharacterGraphs;
+class CharacterStatus;
 
 
 // HPバーの描画
@@ -21,5 +22,8 @@ int drawBuffs(int x, int y, double ex, std::vector<CharacterBuff*> buffs, const 
 
 // 文字列を領域の真ん中に描画したい時の座標を取得
 void getDispCenterStrPos(int* x, int* y, int x1, int y1, int x2, int y2, int font, std::string dispStr);
+
+// キャラの性能をチャートで描画
+void drawChart(int x, int y, double ex, int font, int color, int maxColor, const CharacterStatus* status);
 
 #endif

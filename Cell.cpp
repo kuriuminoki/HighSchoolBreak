@@ -54,7 +54,7 @@ void Cell::playAnimation() {
 }
 
 
-void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font) const {
+void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characterGraphs, int font, int maxDamageValue) const {
 	if (overlap(handX, handY)) {
 		DrawBox(m_x1 - m_edgeLength, m_y1 - m_edgeLength, m_x2 + m_edgeLength, m_y2 + m_edgeLength, m_edgeColor, TRUE);
 	}
@@ -65,10 +65,10 @@ void Cell::draw(int handX, int handY, bool fill, const CharacterGraphs* characte
 	int cy = (m_y1 + m_y2) / 2;
 
 	if (m_damageValue > 0) {
-		DrawCircle(cx, cy, (m_y2 - m_y1) / 2, LIGHT_RED);
+		DrawCircle(cx, cy, (m_y2 - m_y1) * m_damageValue / (2 * maxDamageValue), LIGHT_RED);
 	}
 	else if (m_damageValue < 0) {
-		DrawCircle(cx, cy, (m_y2 - m_y1) / 2, PINK);
+		DrawCircle(cx, cy, (m_y2 - m_y1) * m_damageValue / (2 * maxDamageValue), PINK);
 	}
 
 	if (m_skill_p != nullptr) {

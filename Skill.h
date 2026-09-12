@@ -2,14 +2,17 @@
 #define SKILL_H_INCLUDED
 
 
+#include <map>
 #include <string>
 #include <vector>
 
 
 class AttackInfo;
+class AttackInfoCreator;
 class Cell;
 class Character;
 class CharacterController;
+class CsvReader;
 
 
 enum SKILL_CATEGORY;
@@ -37,6 +40,9 @@ public:
 	Skill();
 	virtual ~Skill() {}
 
+	// セッタ
+	void setSkillName(std::string skillName) { m_skillName = skillName; }
+
 	// ゲッタ
 	inline std::string getSkillName() const { return m_skillName; }
 	inline SKILL_CATEGORY getSkillCategory() const { return m_skillCategory; }
@@ -61,6 +67,9 @@ private:
 	// ターン経過で増えるボーナスの計算
 	virtual int calcTurnBonus(int turn) const { return 0; }
 };
+
+
+Skill* createSkill(std::string skillName, CsvReader* csvReader, AttackInfoCreator* attackInfoCreator);
 
 
 /*
@@ -125,13 +134,13 @@ private:
 /*
 * 踏んだ敵にダメージを与える(罠)スキル
 */
-class DefenceSkill : public Skill
+class DefenseSkill : public Skill
 {
 private:
 	int m_damage;
 
 public:
-	DefenceSkill(int needSkillPoint, int damage);
+	DefenseSkill(int needSkillPoint, int damage);
 
 	// スキルの説明文
 	std::string getSkillDesc() const;

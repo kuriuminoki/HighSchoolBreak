@@ -1,5 +1,7 @@
 #include "Character.h"
+#include "AttackInfo.h"
 #include "CharacterBuff.h"
+#include "CsvReader.h"
 #include "Graphs.h"
 #include "Skill.h"
 #include "SpecialSkill.h"
@@ -45,62 +47,68 @@ string CharacterProfile::getFullName() const {
 /*
 * ステータス
 */
-CharacterStatus::CharacterStatus() {
-	m_maxHp = 100;
+CharacterStatus::CharacterStatus(string lastName, CsvReader* csvReader) {
+	map<string, string> data = csvReader->findOne("lastName", lastName.c_str());
+	if (data.empty()) {
+		data = csvReader->findOne("lastName", "アカツキ");
+	}
+	m_maxHp = stoi(data["hp"]);
+	m_power = stoi(data["power"]);
+	m_defense = stoi(data["defense"]);
+	m_speed = stoi(data["speed"]);
+	m_intelligence = stoi(data["intelligence"]);
+	m_teamWork = stoi(data["teamWork"]);
+
 	m_dispHp = m_maxHp;
 	m_hp = m_maxHp;
-	m_speed = 6;
 	m_skillPoint = 0;
 	m_maxSkillPoint = 30;
-	m_specialPoint = 18;
+	m_specialPoint = 0;
 	m_maxSpecialPoint = 20;
-}
-
-
-/*
-* 攻撃情報
-*/
-AttackInfo::AttackInfo(int n) {
-	if (n == 0) {
-		m_targets.push_back(make_pair(-10, make_pair(0, 0)));
-	}
-	else {
-		m_targets.push_back(make_pair(10, make_pair(-1, -1)));
-		m_targets.push_back(make_pair(10, make_pair(-1, 0)));
-		m_targets.push_back(make_pair(10, make_pair(-1, 1)));
-		m_targets.push_back(make_pair(10, make_pair(0, 1)));
-		m_targets.push_back(make_pair(10, make_pair(1, 1)));
-		m_targets.push_back(make_pair(10, make_pair(1, 0)));
-		m_targets.push_back(make_pair(10, make_pair(1, -1)));
-		m_targets.push_back(make_pair(10, make_pair(0, -1)));
-	}
 }
 
 
 /*
 * キャラクターの基底クラス
 */
-Character::Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind) {
-	m_characterProfile = characterProfile;
-	m_characterStatus = characterStatus;
-	m_attackInfo = new AttackInfo(1);
+Character::Character(int x, int y, GROUP_KIND groupKind) {
 	m_x = x;
 	m_y = y;
 	m_groupKind = groupKind;
 	m_dispHpCnt = 0;
 	m_needSkillPoint = 0;
-	m_skill.push_back(new MoveWithoutDiceSkill(3, 1));
-	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(0)));
-	//m_skill.push_back(new DefenceSkill(3, 10));
-	m_skill.push_back(new AdditionalAttackSkill(5, new AttackInfo(1)));
-	m_skill.push_back(new AttackBuffSkill(3, 2, 20));
-	//m_skill.push_back(new AttackBuffSkill(3, 2, -20));
-	//m_skill.push_back(new SpeedBuffSkill(3, 2, 2));
-	//m_skill.push_back(new SpeedBuffSkill(3, 2, -2));
-	//m_skill.push_back(new DefenseBuffSkill(3, 3, 20));
-	//m_skill.push_back(new DefenseBuffSkill(3, 3, -20));
-	m_specialSkill = new AttackSpecialSkill(new AttackInfo(1));
+}
 
+
+Character::Character(int id, std::string lastName, int x, int y, GROUP_KIND groupKind) :
+	Character(x, y, groupKind)
+{
+	CsvReader* csvReader = new CsvReader("data/csv/characterInfo.csv");
+	map<string, string> params = csvReader->findOne("lastName", lastName.c_str());
+
+	// キャラの基本情報を設定
+	m_characterProfile = new CharacterProfile(id, lastName, params["firstName"]);
+	m_characterStatus = new CharacterStatus(lastName, csvReader);
+
+	// キャラの通常攻撃を設定
+	AttackInfoCreator* attackInfoCreator = new AttackInfoCreator();
+	m_attackInfo = attackInfoCreator->createAttackInfo(lastName, 0);
+
+	// スキルを設定
+	CsvReader* skillReader = new CsvReader("data/csv/skillInfo.csv");
+	m_skill.push_back(createSkill(params["skill1"], skillReader, attackInfoCreator));
+	m_skill.push_back(createSkill(params["skill2"], skillReader, attackInfoCreator));
+	m_skill.push_back(createSkill(params["skill3"], skillReader, attackInfoCreator));
+	m_skill.push_back(createSkill(params["skill4"], skillReader, attackInfoCreator));
+	delete skillReader;
+
+	// 必殺技を設定
+	CsvReader* specialReader = new CsvReader("data/csv/specialInfo.csv");
+	m_specialSkill = createSpecial(params["special"], specialReader, attackInfoCreator);
+	delete specialReader;
+
+	delete attackInfoCreator;
+	delete csvReader;
 }
 
 

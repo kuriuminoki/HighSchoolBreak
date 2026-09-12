@@ -18,8 +18,10 @@ enum GROUP_KIND {
 };
 
 
-class Skill;
+class AttackInfo;
 class CharacterBuff;
+class CsvReader;
+class Skill;
 
 
 /*
@@ -49,24 +51,41 @@ public:
 * ステータス
 */
 class CharacterStatus {
+public:
+	static const int MAX_HP = 200;
+	static const int MAX_POWER = 10;
+	static const int MAX_DEFENSE = 10;
+	static const int MAX_SPEED = 10;
+	static const int MAX_INTELLIGENCE = 100;
+	static const int MAX_TEAMWORK = 100;
+
 private:
-	int m_maxHp;
-	int m_dispHp;
+	int m_maxHp; // 体力
+	int m_power;  // 攻撃力
+	int m_defense; // 防御力
+	int m_speed; // サイコロの最大値
+	int m_intelligence; // ボーナスでスキルポイント回復が起きる確率
+	int m_teamWork; // 仲間のスキルを使った時にボーナスが起きる確率
+
 	int m_hp;
-	int m_speed;
+	int m_dispHp;
 	int m_skillPoint;
 	int m_maxSkillPoint;
 	int m_specialPoint;
 	int m_maxSpecialPoint;
 
 public:
-	CharacterStatus();
+	CharacterStatus(std::string lastName, CsvReader* csvReader);
 
 	// ゲッタ
 	inline int getMaxHp() const { return m_maxHp; }
+	inline int getPower() const { return m_power; }
+	inline int getDefense() const { return m_defense; }
+	inline int getSpeed() const { return m_speed; }
+	inline int getIntelligence() const { return m_intelligence; }
+	inline int getTeamWork() const { return m_teamWork; }
 	inline int getDispHp() const { return m_dispHp; }
 	inline int getHp() const { return m_hp; }
-	inline int getSpeed() const { return m_speed; }
 	inline int getSkillPoint() const { return m_skillPoint; }
 	inline int getMaxSkillPoint() const { return m_maxSkillPoint; }
 	inline int getSpecialPoint() const { return m_specialPoint; }
@@ -78,18 +97,6 @@ public:
 	inline void setSkillPoint(int skillPoint) { m_skillPoint = skillPoint; }
 	inline void setSpecialPoint(int specialPoint) { m_specialPoint = specialPoint; }
 
-};
-
-
-class AttackInfo {
-private:
-	std::vector<std::pair<int, std::pair<int, int> > > m_targets; // (攻撃力, (dy, dx))
-
-public:
-	AttackInfo(int n);
-
-	// ゲッタ
-	inline const std::vector<std::pair<int, std::pair<int, int> > >& getTargets() const { return m_targets; }
 };
 
 
@@ -118,7 +125,8 @@ private:
 	std::vector<CharacterBuff*> m_buffs;
 
 public:
-	Character(CharacterProfile* characterProfile, CharacterStatus* characterStatus, int x, int y, GROUP_KIND groupKind);
+	Character(int x, int y, GROUP_KIND groupKind);
+	Character(int id, std::string lastName, int x, int y, GROUP_KIND groupKind);
 	~Character();
 
 	// ゲッタ
